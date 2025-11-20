@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Table</title>
+    <script>
+      // For dynamically adding columns in UI
+      function addColumn() {
+        const container = document.getElementById('columns');
+        const index = container.children.length;
+        const div = document.createElement('div');
+
+        div.innerHTML = `
+            <input type="text" name="columns[${index}].name" placeholder="Column Name" required />
+            <select name="columns[${index}].type" required>
+                <option value="String">String</option>
+                <option value="Long">Long</option>
+                <option value="Integer">Integer</option>
+                <option value="Boolean">Boolean</option>
+            </select>
+            <label>
+                Primary Key
+                <input type="checkbox" name="columns[${index}].primaryKey" />
+            </label>
+            <br/>
+        `;
+        container.appendChild(div);
+      }
+    </script>
+</head>
+<body>
+    <h1>Create a Table</h1>
+    <form action="/create-table" method="post">
+        <label>Table Name:</label><br>
+        <input type="text" name="tableName" required/><br><br>
+
+        <div id="columns">
+            <div>
+                <input type="text" name="columns[0].name" placeholder="Column Name" required />
+                <select name="columns[0].type" required>
+                    <option value="String">String</option>
+                    <option value="Long">Long</option>
+                    <option value="Integer">Integer</option>
+                    <option value="Boolean">Boolean</option>
+                </select>
+                <label>
+                    Primary Key
+                    <input type="checkbox" name="columns[0].primaryKey" />
+                </label>
+                <br/>
+            </div>
+        </div>
+
+        <button type="button" onclick="addColumn()">Add Column</button><br><br>
+        <button type="submit">Create Table</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generic CRUD UI</title>
+    <script>
+        const apiBase = "http://localhost:8089/api/crud";
+
+        function insertRow() {
+            const table = document.getElementById("table").value;
+            const data = JSON.parse(document.getElementById("jsonData").value);
+
+            fetch(`${apiBase}/${table}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.text())
+            .then(alert);
+        }
+
+        function getAll() {
+            const table = document.getElementById("table").value;
+
+            fetch(`${apiBase}/${table}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+                });
+        }
+
+        function getById() {
+            const table = document.getElementById("table").value;
+            const idCol = document.getElementById("idColumn").value;
+            const idVal = document.getElementById("idValue").value;
+
+            fetch(`${apiBase}/${table}/${idCol}/${idVal}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+                });
+        }
+
+        function updateRow() {
+            const table = document.getElementById("table").value;
+            const idCol = document.getElementById("idColumn").value;
+            const idVal = document.getElementById("idValue").value;
+            const data = JSON.parse(document.getElementById("jsonData").value);
+
+            fetch(`${apiBase}/${table}/${idCol}/${idVal}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.text())
+            .then(alert);
+        }
+
+        function deleteRow() {
+            const table = document.getElementById("table").value;
+            const idCol = document.getElementById("idColumn").value;
+            const idVal = document.getElementById("idValue").value;
+
+            fetch(`${apiBase}/${table}/${idCol}/${idVal}`, {
+                method: "DELETE"
+            })
+            .then(res => res.text())
+            .then(alert);
+        }
+    </script>
+</head>
+<body>
+    <h2>Generic CRUD Operations UI</h2>
+
+    <label>Table Name: <input type="text" id="table" /></label><br><br>
+    <label>ID Column: <input type="text" id="idColumn" /></label><br><br>
+    <label>ID Value: <input type="text" id="idValue" /></label><br><br>
+    
+    <label>JSON Data:</label><br>
+    <textarea id="jsonData" rows="5" cols="50">
+{
+  "id": 1,
+  "name": "Alice",
+  "age": 30
+}
+    </textarea><br><br>
+
+    <button onclick="insertRow()">Create (Insert)</button>
+    <button onclick="getAll()">Read All</button>
+    <button onclick="getById()">Read by ID</button>
+    <button onclick="updateRow()">Update</button>
+    <button onclick="deleteRow()">Delete</button>
+
+    <h3>Result:</h3>
+    <pre id="result" style="background-color: #f0f0f0; padding: 10px;"></pre>
+</body>
+</html>
