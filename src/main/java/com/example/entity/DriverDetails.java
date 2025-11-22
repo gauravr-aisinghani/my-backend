@@ -1,16 +1,17 @@
 package com.example.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "driver_details")
+@Table(name = "yfs_driver_details")
 public class DriverDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "driver_id")
-    private Long driverId;
+    @Column(name = "driver_registration_id")
+    private Long driverRegistrationId;
 
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
@@ -22,103 +23,90 @@ public class DriverDetails {
     private String motherName;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 3)
-    private DrinkOption drink = DrinkOption.NO; // Enum YES / NO
+    @Column(name = "drink", length = 3)
+    private DrinkOption drink = DrinkOption.NO;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 10)
+    @Column(name = "gender", length = 10)
     private Gender gender;
 
-    @Column(name = "dob")
-    private String dob; // Can be LocalDate if needed
+    // DOB stored as LocalDate for correctness
+    @Column(name = "dob", nullable = false)
+    private LocalDate dob;
 
-    @Column(length = 100)
+    @Column(name = "age")
+    private Integer age;
+
+    @Column(name = "education", length = 100)
     private String education;
 
     @Column(name = "language_known", length = 100)
     private String languageKnown;
 
+    @Column(name = "mobile_number", nullable = false, length = 10, unique = true)
+    private String mobileNumber;
+
+    @Column(name = "mobile_number_alt", length = 10)
+    private String mobileNumberAlt;
+
     @Column(name = "blood_group", length = 5)
     private String bloodGroup;
 
-    @Column(name = "aadhar_no", length = 12, unique = true)
+    @Column(name = "aadhar_no", length = 12, unique = true, nullable = false)
     private String aadharNo;
 
     @Column(name = "bhamashah_no", length = 20)
     private String bhamashahNo;
 
-    @Column(length = 50)
+    @Column(name = "category", length = 50)
     private String category;
 
-    @Column(name = "mobile1", length = 10, unique = true, nullable = false)
-    private String mobile1;
+    @Column(name = "colony_house_no", length = 255)
+    private String colonyHouseNo;
 
-    @Column(name = "mobile2", length = 10)
-    private String mobile2;
-
-    @Column(name = "address_line", length = 255)
-    private String addressLine;
-
-    @Column(length = 100)
+    @Column(name = "village", length = 100)
     private String village;
 
-    @Column(length = 100)
+    @Column(name = "tehsil", length = 100)
     private String tehsil;
 
     @Column(name = "police_station", length = 100)
     private String policeStation;
 
-    @Column(length = 100)
+    @Column(name = "district", length = 100)
     private String district;
 
-    @Column(length = 50)
+    @Column(name = "state", length = 50)
     private String state;
 
-    @Column(name = "pin_code", length = 6)
-    private String pinCode;
+    @Column(name = "pincode", length = 6)
+    private String pincode;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
-    // --- Constructors ---
-
-    public DriverDetails() {}
-
-    public DriverDetails(String fullName, String fatherName, String motherName, DrinkOption drink, Gender gender,
-                         String dob, String education, String languageKnown, String bloodGroup, String aadharNo,
-                         String bhamashahNo, String category, String mobile1, String mobile2, String addressLine,
-                         String village, String tehsil, String policeStation, String district, String state,
-                         String pinCode) {
-        this.fullName = fullName;
-        this.fatherName = fatherName;
-        this.motherName = motherName;
-        this.drink = drink;
-        this.gender = gender;
-        this.dob = dob;
-        this.education = education;
-        this.languageKnown = languageKnown;
-        this.bloodGroup = bloodGroup;
-        this.aadharNo = aadharNo;
-        this.bhamashahNo = bhamashahNo;
-        this.category = category;
-        this.mobile1 = mobile1;
-        this.mobile2 = mobile2;
-        this.addressLine = addressLine;
-        this.village = village;
-        this.tehsil = tehsil;
-        this.policeStation = policeStation;
-        this.district = district;
-        this.state = state;
-        this.pinCode = pinCode;
+    // PrePersist / PreUpdate to maintain timestamps
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    // --- Getters and Setters ---
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
-    public Long getDriverId() { return driverId; }
-    public void setDriverId(Long driverId) { this.driverId = driverId; }
+    // ---------- ENUMS ----------
+    public enum DrinkOption { YES, NO }
+    public enum Gender { MALE, FEMALE, OTHER }
+
+    // ---------- GETTERS + SETTERS ----------
+    public Long getDriverRegistrationId() { return driverRegistrationId; }
+    public void setDriverRegistrationId(Long driverRegistrationId) { this.driverRegistrationId = driverRegistrationId; }
 
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
@@ -135,14 +123,23 @@ public class DriverDetails {
     public Gender getGender() { return gender; }
     public void setGender(Gender gender) { this.gender = gender; }
 
-    public String getDob() { return dob; }
-    public void setDob(String dob) { this.dob = dob; }
+    public LocalDate getDob() { return dob; }
+    public void setDob(LocalDate dob) { this.dob = dob; }
+
+    public Integer getAge() { return age; }
+    public void setAge(Integer age) { this.age = age; }
 
     public String getEducation() { return education; }
     public void setEducation(String education) { this.education = education; }
 
     public String getLanguageKnown() { return languageKnown; }
     public void setLanguageKnown(String languageKnown) { this.languageKnown = languageKnown; }
+
+    public String getMobileNumber() { return mobileNumber; }
+    public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
+
+    public String getMobileNumberAlt() { return mobileNumberAlt; }
+    public void setMobileNumberAlt(String mobileNumberAlt) { this.mobileNumberAlt = mobileNumberAlt; }
 
     public String getBloodGroup() { return bloodGroup; }
     public void setBloodGroup(String bloodGroup) { this.bloodGroup = bloodGroup; }
@@ -156,14 +153,8 @@ public class DriverDetails {
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
 
-    public String getMobile1() { return mobile1; }
-    public void setMobile1(String mobile1) { this.mobile1 = mobile1; }
-
-    public String getMobile2() { return mobile2; }
-    public void setMobile2(String mobile2) { this.mobile2 = mobile2; }
-
-    public String getAddressLine() { return addressLine; }
-    public void setAddressLine(String addressLine) { this.addressLine = addressLine; }
+    public String getColonyHouseNo() { return colonyHouseNo; }
+    public void setColonyHouseNo(String colonyHouseNo) { this.colonyHouseNo = colonyHouseNo; }
 
     public String getVillage() { return village; }
     public void setVillage(String village) { this.village = village; }
@@ -180,16 +171,12 @@ public class DriverDetails {
     public String getState() { return state; }
     public void setState(String state) { this.state = state; }
 
-    public String getPinCode() { return pinCode; }
-    public void setPinCode(String pinCode) { this.pinCode = pinCode; }
+    public String getPincode() { return pincode; }
+    public void setPincode(String pincode) { this.pincode = pincode; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    // --- Enums ---
-    public enum DrinkOption { YES, NO }
-    public enum Gender { MALE, FEMALE, OTHER }
 }

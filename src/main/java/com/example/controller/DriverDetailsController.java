@@ -4,9 +4,11 @@ import com.example.dto.DriverDetailsDTO;
 import com.example.entity.DriverDetails;
 import com.example.service.DriverDetailsService;
 
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -20,32 +22,51 @@ public class DriverDetailsController {
         this.service = service;
     }
 
+    // Send OTP
+    @PostMapping("/send-otp")
+    public ResponseEntity<String> sendOtp(@RequestParam String mobileNumber) {
+        String res = service.sendOtp(mobileNumber);
+        return ResponseEntity.ok(res);
+    }
+
+    // Verify OTP
+    @PostMapping("/verify-otp")
+    public ResponseEntity<Boolean> verifyOtp(@RequestParam String mobileNumber, @RequestParam String otp) {
+        boolean ok = service.verifyOtp(mobileNumber, otp);
+        return ResponseEntity.ok(ok);
+    }
+
+    // Create
     @PostMapping
     public ResponseEntity<DriverDetails> createDriver(@RequestBody DriverDetailsDTO dto) {
-        DriverDetails driver = service.createDriver(dto);
-        return ResponseEntity.ok(driver);
+        DriverDetails created = service.createDriver(dto);
+        return ResponseEntity.created(URI.create("/api/drivers" + created.getDriverRegistrationId()))
+                .body(created);
     }
 
+    // Get by id
     @GetMapping("/{id}")
-    public ResponseEntity<DriverDetails> getDriver(@PathVariable Long id) {
-        DriverDetails driver = service.getDriverById(id);
-        return ResponseEntity.ok(driver);
+    public ResponseEntity<DriverDetails> getById(@PathVariable("id") Long id) {
+        DriverDetails d = service.getDriverById(id);
+        return ResponseEntity.ok(d);
     }
 
+    // Get all
     @GetMapping
-    public ResponseEntity<List<DriverDetails>> getAllDrivers() {
-        List<DriverDetails> drivers = service.getAllDrivers();
-        return ResponseEntity.ok(drivers);
+    public ResponseEntity<List<DriverDetails>> getAll() {
+        return ResponseEntity.ok(service.getAllDrivers());
     }
 
+    // Update
     @PutMapping("/{id}")
-    public ResponseEntity<DriverDetails> updateDriver(@PathVariable Long id, @RequestBody DriverDetailsDTO dto) {
-        DriverDetails driver = service.updateDriver(id, dto);
-        return ResponseEntity.ok(driver);
+    public ResponseEntity<DriverDetails> update(@PathVariable("id") Long id, @RequestBody DriverDetailsDTO dto) {
+        DriverDetails updated = service.updateDriver(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
+    // Delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDriver(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.deleteDriver(id);
         return ResponseEntity.noContent().build();
     }
