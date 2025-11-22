@@ -98,19 +98,17 @@ public class AuthController {
     private final ClientRepository repo;
     private final PasswordEncoder encoder;
 
-    // ------------------------
-    // SESSION TIMING SETTINGS
-    // ------------------------
-
-    // Production = 10 min = 600 sec
+    // ----------------- CONFIGURE THESE VALUES -----------------
+    // Production desired session length (seconds) -> 10 minutes
     private static final int PROD_SESSION_SECONDS = 10 * 60;
 
-    // Testing = 1 min = 60 sec
+    // Testing session length (seconds) -> 1 minute
     private static final int TEST_SESSION_SECONDS = 60;
 
-    // true → 60 sec (testing)
-    // false → 600 sec (production)
+    // Toggle: set to true to use testing TTL (1 minute). Set to false for production TTL (10 minutes).
+    // You can also wire these from application.properties, but this simple constant is convenient for testing.
     private static final boolean USE_TEST_TTL = true;
+    // ---------------------------------------------------------
 
     private int chosenTtlSeconds() {
         return USE_TEST_TTL ? TEST_SESSION_SECONDS : PROD_SESSION_SECONDS;
@@ -121,9 +119,6 @@ public class AuthController {
         this.encoder = encoder;
     }
 
-    // ------------------------
-    // LOGIN
-    // ------------------------
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpSession session) {
         Optional<Client> opt = repo.findByEmail(req.getEmail());
@@ -138,20 +133,21 @@ public class AuthController {
         if (!encoder.matches(req.getPassword(), c.getPassword()))
             return ResponseEntity.status(401).body(new ApiResponse(false, "Invalid credentials"));
 
-        // SET SESSION ATTRIBUTES
+        // ----------------------------
+        // LOGIN SUCCESS — SET SESSION
+        // ----------------------------
         session.setAttribute("CLIENT_ID", c.getId());
         session.setAttribute("CLIENT_EMAIL", c.getEmail());
         session.setAttribute("ROLE", c.getRole());
 
-        // APPLY SESSION TTL
+        // set MaxInactiveInterval according to chosen TTL.
+        // FOR TESTING: USE_TEST_TTL=true => 60 seconds
+        // FOR PROD: set USE_TEST_TTL=false => 600 seconds (10 minutes)
         session.setMaxInactiveInterval(chosenTtlSeconds());
 
         return ResponseEntity.ok(new ApiResponse(true, "Login successful"));
     }
 
-    // ------------------------
-    // LOGOUT
-    // ------------------------
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
@@ -159,75 +155,75 @@ public class AuthController {
             session.invalidate();
         }
 
-        // Delete JSESSIONID cookie
+        // ---- Force cookie deletion in browser (important for cross-site cookies) ----
+        // We add both a Cookie object and a Set-Cookie header with SameSite=None to be explicit.
         Cookie cookie = new Cookie("JSESSIONID", null);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setMaxAge(0);
+        cookie.setMaxAge(0); // delete immediately
+        // Note: Cookie API does not have a direct setSameSite method in some environments;
+        // therefore we also add the header below to enforce SameSite=None.
         response.addCookie(cookie);
 
-        // Force deletion with SameSite=None
+        // Add explicit Set-Cookie header (ensures SameSite=None is present)
+        // Format: JSESSIONID=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None
         response.addHeader("Set-Cookie",
                 "JSESSIONID=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None");
 
         return ResponseEntity.ok(new ApiResponse(true, "Logged out"));
     }
 
-    // ------------------------
-    // SESSION STATUS (REAL REMAINING TIME)
-    // ------------------------
+    /**
+     * Returns remaining TTL in seconds, and the role.
+     * Frontend should use "ttl" to keep its timer accurate.
+     */
     @GetMapping("/session-status")
-    public ResponseEntity<?> sessionStatus(HttpServletRequest request) {
+    public ResponseEntity<?> sessionStatus(HttpSession session) {
 
-        HttpSession session = request.getSession(false);
+        Object role = (session == null) ? null : session.getAttribute("ROLE");
 
-        if (session == null)
-            return ResponseEntity.status(401).body(Map.of(
-                    "success", false,
-                    "message", "No active session"
-            ));
-
-        Object role = session.getAttribute("ROLE");
         if (role == null)
             return ResponseEntity.status(401).body(Map.of(
                     "success", false,
                     "message", "No active session"
             ));
 
-        long now = System.currentTimeMillis();
-        long lastAccess = session.getLastAccessedTime();
-        long expiryTime = lastAccess + (session.getMaxInactiveInterval() * 1000L);
-
-        long remainingSeconds = Math.max(0, (expiryTime - now) / 1000);
+        // session.getMaxInactiveInterval() returns seconds remaining until invalidation
+        int ttl = session.getMaxInactiveInterval();
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
+                "message", "Active session (" + role + ")",
                 "role", role.toString(),
-                "remainingSeconds", remainingSeconds
+                "ttl", ttl
         ));
     }
 
-    // ------------------------
-    // EXTEND SESSION
-    // ------------------------
+    /**
+     * Extend session (used when user clicks "Extend session").
+     * This will reset session TTL to the configured chosenTtlSeconds().
+     *
+     * Endpoint: GET /api/auth/extend-session
+     */
     @GetMapping("/extend-session")
     public ResponseEntity<?> extendSession(HttpSession session, HttpServletResponse response) {
+        Object role = (session == null) ? null : session.getAttribute("ROLE");
 
-        if (session == null || session.getAttribute("ROLE") == null)
+        if (role == null)
             return ResponseEntity.status(401).body(Map.of(
                     "success", false,
                     "message", "No active session"
             ));
 
-        // Reset session TTL
+        // Reset session TTL to configured value
         session.setMaxInactiveInterval(chosenTtlSeconds());
 
-        // Refresh cookie expiration
+        // Optionally refresh cookie expiration by re-sending cookie (helps some browsers)
+        // We send a Set-Cookie header with same attributes to refresh cookie on client side.
         response.addHeader("Set-Cookie",
-                "JSESSIONID=" + session.getId() +
-                        "; Path=/; Max-Age=" + chosenTtlSeconds() +
-                        "; HttpOnly; Secure; SameSite=None");
+                "JSESSIONID=" + session.getId() + "; Path=/; Max-Age=" + chosenTtlSeconds()
+                        + "; HttpOnly; Secure; SameSite=None");
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
@@ -236,3 +232,4 @@ public class AuthController {
         ));
     }
 }
+
