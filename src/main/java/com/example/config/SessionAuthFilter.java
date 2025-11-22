@@ -39,5 +39,3 @@ public class SessionAuthFilter implements Filter {
     }
 }
 
-
-
