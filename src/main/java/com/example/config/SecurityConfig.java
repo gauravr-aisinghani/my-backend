@@ -28,6 +28,7 @@ public class SecurityConfig {
             	    .requestMatchers("/api/auth/**").permitAll()
             	    .requestMatchers("/api/auth/login").permitAll()   // ✅ FIX 1: Explicit login allow
             	    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // ✅ FIX 2: Allow OPTIONS preflight
+            	    .requestMatchers("/api/auth/session-status").permitAll()
 
             	    .requestMatchers("/api/client/**").permitAll()
             	    .requestMatchers("/api/visitor-driver/**").permitAll()
