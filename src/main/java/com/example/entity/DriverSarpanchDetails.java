@@ -1,6 +1,8 @@
 package com.example.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -39,10 +41,13 @@ public class DriverSarpanchDetails {
     @Column(name = "reference_driver_name", length = 150)
     private String referenceDriverName;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
+    // ⭐ FIXED TIMESTAMPS ⭐
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", insertable = false, updatable = false)
+    @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public DriverSarpanchDetails() {}

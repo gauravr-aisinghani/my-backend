@@ -1,6 +1,8 @@
 package com.example.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -55,16 +57,18 @@ public class DriverExperience {
     @Column(name = "to_date")
     private LocalDate toDate;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
+    // ⭐ FIXED TIMESTAMPS ⭐
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", insertable = false)
+    @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public DriverExperience() {}
 
     // ---- Getters & Setters ----
-
     public Long getDriverExperienceId() {
         return driverExperienceId;
     }
