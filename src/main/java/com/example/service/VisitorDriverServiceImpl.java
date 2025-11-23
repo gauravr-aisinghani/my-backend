@@ -3,9 +3,9 @@ package com.example.service;
 import com.example.dto.VisitorDriverDTO;
 import com.example.entity.VisitorDriver;
 import com.example.repository.VisitorDriverRepository;
-import com.example.service.VisitorDriverService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,100 +18,91 @@ public class VisitorDriverServiceImpl implements VisitorDriverService {
         this.repository = repository;
     }
 
-    private VisitorDriverDTO convertToDTO(VisitorDriver entity) {
+    private VisitorDriverDTO toDTO(VisitorDriver e) {
         VisitorDriverDTO dto = new VisitorDriverDTO();
 
-        dto.setVisitorDriverId(entity.getVisitorDriverId());
-        dto.setDate(entity.getDate());
-        dto.setTime(entity.getTime());
-        dto.setDriverName(entity.getDriverName());
-        dto.setLocation(entity.getLocation());
-        dto.setMobileNo(entity.getMobileNo());
-        dto.setOtherMobile(entity.getOtherMobile());
-        dto.setRelativeName(entity.getRelativeName());
-        dto.setRelativeMobile(entity.getRelativeMobile());
-
-        dto.setGaadi(entity.getGaadi());
-        dto.setUnderload(entity.getUnderload());
-        dto.setOverload(entity.getOverload());
-        dto.setPreferedLocation(entity.getPreferedLocation());
-        dto.setPreferedMonthlySalary(entity.getPreferedMonthlySalary());
-        dto.setRegularTiming(entity.getRegularTiming());
-        dto.setLeaveTime(entity.getLeaveTime());
-        dto.setAnyIssue(entity.getAnyIssue());
-        dto.setNotes(entity.getNotes());
-
-        dto.setBirthPlace(entity.getBirthPlace());
-        dto.setGrade(entity.getGrade());
-        dto.setVehicle(entity.getVehicle());
-        dto.setAssignFor(entity.getAssignFor());
+        dto.setVisitorDriverId(e.getVisitorDriverId());
+        dto.setDriverName(e.getDriverName());
+        dto.setLocation(e.getLocation());
+        dto.setMobileNo(e.getMobileNo());
+        dto.setGrade(e.getGrade());
+        dto.setOtherMobile(e.getOtherMobile());
+        dto.setBirthPlace(e.getBirthPlace());
+        dto.setRelativeName(e.getRelativeName());
+        dto.setRelativeMobile(e.getRelativeMobile());
+        dto.setGaadiDrivenInPast(e.getGaadiDrivenInPast());
+        dto.setUnderload(e.getUnderload());
+        dto.setOverload(e.getOverload());
+        dto.setPreferedLocation(e.getPreferedLocation());
+        dto.setPreferedMonthlySalary(e.getPreferedMonthlySalary());
+        dto.setRegularTiming(e.getRegularTiming());
+        dto.setOccasional(e.getOccasional());
+        dto.setPermanent(e.getPermanent());
+        dto.setAnyIssue(e.getAnyIssue());
+        dto.setNotes(e.getNotes());
+        dto.setPreferredVehicle(e.getPreferredVehicle()); // ⭐ NEW
+        dto.setCreatedAt(e.getCreatedAt());
+        dto.setUpdatedAt(e.getUpdatedAt());
 
         return dto;
     }
 
-    private VisitorDriver convertToEntity(VisitorDriverDTO dto) {
-        VisitorDriver entity = new VisitorDriver();
+    private VisitorDriver toEntity(VisitorDriverDTO d) {
+        VisitorDriver e = new VisitorDriver();
 
-        entity.setVisitorDriverId(dto.getVisitorDriverId());
-        entity.setDate(dto.getDate());
-        entity.setTime(dto.getTime());
-        entity.setDriverName(dto.getDriverName());
-        entity.setLocation(dto.getLocation());
-        entity.setMobileNo(dto.getMobileNo());
-        entity.setOtherMobile(dto.getOtherMobile());
-        entity.setRelativeName(dto.getRelativeName());
-        entity.setRelativeMobile(dto.getRelativeMobile());
+        e.setVisitorDriverId(d.getVisitorDriverId());
+        e.setDriverName(d.getDriverName());
+        e.setLocation(d.getLocation());
+        e.setMobileNo(d.getMobileNo());
+        e.setGrade(d.getGrade());
+        e.setOtherMobile(d.getOtherMobile());
+        e.setBirthPlace(d.getBirthPlace());
+        e.setRelativeName(d.getRelativeName());
+        e.setRelativeMobile(d.getRelativeMobile());
+        e.setGaadiDrivenInPast(d.getGaadiDrivenInPast());
+        e.setUnderload(d.getUnderload());
+        e.setOverload(d.getOverload());
+        e.setPreferedLocation(d.getPreferedLocation());
+        e.setPreferedMonthlySalary(d.getPreferedMonthlySalary());
+        e.setRegularTiming(d.getRegularTiming());
+        e.setOccasional(d.getOccasional());
+        e.setPermanent(d.getPermanent());
+        e.setAnyIssue(d.getAnyIssue());
+        e.setNotes(d.getNotes());
+        e.setPreferredVehicle(d.getPreferredVehicle()); // ⭐ NEW
 
-        entity.setGaadi(dto.getGaadi());
-        entity.setUnderload(dto.getUnderload());
-        entity.setOverload(dto.getOverload());
-        entity.setPreferedLocation(dto.getPreferedLocation());
-        entity.setPreferedMonthlySalary(dto.getPreferedMonthlySalary());
-        entity.setRegularTiming(dto.getRegularTiming());
-        entity.setLeaveTime(dto.getLeaveTime());
-        entity.setAnyIssue(dto.getAnyIssue());
-        entity.setNotes(dto.getNotes());
-
-        entity.setBirthPlace(dto.getBirthPlace());
-        entity.setGrade(dto.getGrade());
-        entity.setVehicle(dto.getVehicle());
-        entity.setAssignFor(dto.getAssignFor());
-
-        return entity;
+        return e;
     }
 
     @Override
     public VisitorDriverDTO saveVisitorDriver(VisitorDriverDTO dto) {
-        VisitorDriver saved = repository.save(convertToEntity(dto));
-        return convertToDTO(saved);
+        VisitorDriver entity = toEntity(dto);
+        entity.setCreatedAt(LocalDateTime.now());
+        entity.setUpdatedAt(LocalDateTime.now());
+        return toDTO(repository.save(entity));
     }
 
     @Override
     public VisitorDriverDTO getVisitorDriver(Long id) {
-        return repository.findById(id)
-                .map(this::convertToDTO)
-                .orElse(null);
+        return repository.findById(id).map(this::toDTO).orElse(null);
     }
 
     @Override
     public List<VisitorDriverDTO> getAllVisitorDrivers() {
-        return repository.findAll()
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
     public VisitorDriverDTO updateVisitorDriver(Long id, VisitorDriverDTO dto) {
         VisitorDriver existing = repository.findById(id).orElse(null);
-
         if (existing == null) return null;
 
-        dto.setVisitorDriverId(id);
-        VisitorDriver updated = convertToEntity(dto);
+        VisitorDriver updated = toEntity(dto);
+        updated.setVisitorDriverId(id);
         updated.setCreatedAt(existing.getCreatedAt());
+        updated.setUpdatedAt(LocalDateTime.now());
 
-        return convertToDTO(repository.save(updated));
+        return toDTO(repository.save(updated));
     }
 
     @Override

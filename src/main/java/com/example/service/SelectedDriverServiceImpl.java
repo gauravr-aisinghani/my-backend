@@ -1,70 +1,94 @@
 package com.example.service;
 
 import com.example.dto.SelectedDriverDTO;
-import com.example.dto.VisitorDriverDTO;
 import com.example.entity.SelectedDriver;
 import com.example.repository.SelectedDriverRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional  // ✅ Ensures all repository operations are committed
 public class SelectedDriverServiceImpl implements SelectedDriverService {
 
-    private final SelectedDriverRepository selectedDriverRepository;
+    private final SelectedDriverRepository repo;
 
-    public SelectedDriverServiceImpl(SelectedDriverRepository selectedDriverRepository) {
-        this.selectedDriverRepository = selectedDriverRepository;
+    public SelectedDriverServiceImpl(SelectedDriverRepository repo) {
+        this.repo = repo;
+    }
+
+    private SelectedDriverDTO toDTO(SelectedDriver e) {
+        SelectedDriverDTO d = new SelectedDriverDTO();
+
+        d.setSelectedDriverId(e.getSelectedDriverId());
+        d.setVisitorDriverId(e.getVisitorDriverId());
+        d.setDriverName(e.getDriverName());
+        d.setBirthPlace(e.getBirthPlace());
+        d.setMobileNo(e.getMobileNo());
+        d.setGrade(e.getGrade());
+        d.setPreferredVehicle(e.getPreferredVehicle());
+        d.setApprovedForAssign(e.getApprovedForAssign());
+        d.setAssignedStatus(e.getAssignedStatus());
+        d.setSelectionNotes(e.getSelectionNotes());
+        d.setSelectedDate(e.getSelectedDate());
+        d.setCreatedAt(e.getCreatedAt());
+        d.setUpdatedAt(e.getUpdatedAt());
+
+        return d;
+    }
+
+    private SelectedDriver toEntity(SelectedDriverDTO d) {
+        SelectedDriver e = new SelectedDriver();
+
+        e.setSelectedDriverId(d.getSelectedDriverId());
+        e.setVisitorDriverId(d.getVisitorDriverId());
+        e.setDriverName(d.getDriverName());
+        e.setBirthPlace(d.getBirthPlace());
+        e.setMobileNo(d.getMobileNo());
+        e.setGrade(d.getGrade());
+        e.setPreferredVehicle(d.getPreferredVehicle());
+        e.setApprovedForAssign(d.getApprovedForAssign());
+        e.setAssignedStatus(d.getAssignedStatus());
+        e.setSelectionNotes(d.getSelectionNotes());
+        e.setSelectedDate(d.getSelectedDate());
+
+        return e;
     }
 
     @Override
-    public SelectedDriverDTO addSelectedDriver(VisitorDriverDTO visitor) {
-        SelectedDriver entity = new SelectedDriver();
-        entity.setVisitorDriverId(visitor.getVisitorDriverId());
-        entity.setDate(visitor.getDate());
-        entity.setTime(visitor.getTime());
-        entity.setDriverName(visitor.getDriverName());
-        entity.setBirthPlace(visitor.getBirthPlace());
-        entity.setMobileNo(visitor.getMobileNo());
-        entity.setGrade(visitor.getGrade());
-        entity.setVehicle(visitor.getVehicle() != null ? visitor.getVehicle() : visitor.getGaadi());
-        entity.setAssignFor(visitor.getAssignFor());
+    public SelectedDriverDTO saveSelectedDriver(SelectedDriverDTO dto) {
+        SelectedDriver entity = toEntity(dto);
+        entity.setCreatedAt(LocalDateTime.now());
+        entity.setUpdatedAt(LocalDateTime.now());
+        return toDTO(repo.save(entity));
+    }
 
-        SelectedDriver saved = selectedDriverRepository.save(entity);
-
-        SelectedDriverDTO dto = new SelectedDriverDTO();
-        dto.setSelectedDriverId(saved.getSelectedDriverId());
-        dto.setVisitorDriverId(saved.getVisitorDriverId());
-        dto.setDate(saved.getDate());
-        dto.setTime(saved.getTime());
-        dto.setDriverName(saved.getDriverName());
-        dto.setBirthPlace(saved.getBirthPlace());
-        dto.setMobileNo(saved.getMobileNo());
-        dto.setGrade(saved.getGrade());
-        dto.setVehicle(saved.getVehicle());
-        dto.setAssignFor(saved.getAssignFor());
-
-        return dto;
+    @Override
+    public SelectedDriverDTO getSelectedDriver(Long id) {
+        return repo.findById(id).map(this::toDTO).orElse(null);
     }
 
     @Override
     public List<SelectedDriverDTO> getAllSelectedDrivers() {
-        return selectedDriverRepository.findAll().stream().map(entity -> {
-            SelectedDriverDTO dto = new SelectedDriverDTO();
-            dto.setSelectedDriverId(entity.getSelectedDriverId());
-            dto.setVisitorDriverId(entity.getVisitorDriverId());
-            dto.setDate(entity.getDate());
-            dto.setTime(entity.getTime());
-            dto.setDriverName(entity.getDriverName());
-            dto.setBirthPlace(entity.getBirthPlace());
-            dto.setMobileNo(entity.getMobileNo());
-            dto.setGrade(entity.getGrade());
-            dto.setVehicle(entity.getVehicle());
-            dto.setAssignFor(entity.getAssignFor());
-            return dto;
-        }).collect(Collectors.toList());
+        return repo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public SelectedDriverDTO updateSelectedDriver(Long id, SelectedDriverDTO dto) {
+        SelectedDriver existing = repo.findById(id).orElse(null);
+        if (existing == null) return null;
+
+        SelectedDriver updated = toEntity(dto);
+        updated.setSelectedDriverId(id);
+        updated.setCreatedAt(existing.getCreatedAt());
+        updated.setUpdatedAt(LocalDateTime.now());
+
+        return toDTO(repo.save(updated));
+    }
+
+    @Override
+    public void deleteSelectedDriver(Long id) {
+        repo.deleteById(id);
     }
 }

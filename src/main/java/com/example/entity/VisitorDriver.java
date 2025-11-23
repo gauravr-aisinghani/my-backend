@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "visitor_driver")
+@Table(name = "yfs_visitor_driver")
 public class VisitorDriver {
 
     @Id
@@ -12,47 +12,74 @@ public class VisitorDriver {
     @Column(name = "visitor_driver_id")
     private Long visitorDriverId;
 
-    private String date;
-    private String time;
+    @Column(name = "driver_name", nullable = false)
     private String driverName;
+
+    @Column(name = "location", nullable = false)
     private String location;
+
+    @Column(name = "mobile_no", nullable = false)
     private String mobileNo;
+
+    @Column(name = "grade", nullable = false)
+    private String grade;
+
+    @Column(name = "other_mobile")
     private String otherMobile;
+
+    @Column(name = "birth_place")
+    private String birthPlace;
+
+    @Column(name = "relative_name")
     private String relativeName;
+
+    @Column(name = "relative_mobile")
     private String relativeMobile;
 
-    private String gaadi;
-    private String underload;
-    private String overload;
+    @Column(name = "gaadi_driven_in_past", nullable = false)
+    private String gaadiDrivenInPast;
 
+    @Column(name = "underload", nullable = false)
+    private Boolean underload;
+
+    @Column(name = "overload", nullable = false)
+    private Boolean overload;
+
+    @Column(name = "prefered_location")
     private String preferedLocation;
+
+    @Column(name = "prefered_monthly_salary")
     private String preferedMonthlySalary;
+
+    @Column(name = "regular_timing")
     private String regularTiming;
-    private String leaveTime;
+
+    @Column(name = "occasional")
+    private Boolean occasional;
+
+    @Column(name = "permanent")
+    private Boolean permanent;
+
+    @Column(name = "any_issue")
     private String anyIssue;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "notes")
     private String notes;
 
-    // EXTRA COLUMNS FROM SELECTED DRIVER TABLE
-    private String birthPlace;
-    private String grade;
-    private String vehicle;
-    private String assignFor;
+    // ⭐ NEW FIELD ⭐
+    @Column(name = "preferred_vehicle")
+    private String preferredVehicle;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // -------------------------
-    // Constructors
-    // -------------------------
-    public VisitorDriver() {}
 
-    // -------------------------
+    // ===============================
     // GETTERS & SETTERS
-    // -------------------------
+    // ===============================
 
     public Long getVisitorDriverId() {
         return visitorDriverId;
@@ -60,22 +87,6 @@ public class VisitorDriver {
 
     public void setVisitorDriverId(Long visitorDriverId) {
         this.visitorDriverId = visitorDriverId;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
     }
 
     public String getDriverName() {
@@ -102,12 +113,28 @@ public class VisitorDriver {
         this.mobileNo = mobileNo;
     }
 
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
     public String getOtherMobile() {
         return otherMobile;
     }
 
     public void setOtherMobile(String otherMobile) {
         this.otherMobile = otherMobile;
+    }
+
+    public String getBirthPlace() {
+        return birthPlace;
+    }
+
+    public void setBirthPlace(String birthPlace) {
+        this.birthPlace = birthPlace;
     }
 
     public String getRelativeName() {
@@ -126,27 +153,27 @@ public class VisitorDriver {
         this.relativeMobile = relativeMobile;
     }
 
-    public String getGaadi() {
-        return gaadi;
+    public String getGaadiDrivenInPast() {
+        return gaadiDrivenInPast;
     }
 
-    public void setGaadi(String gaadi) {
-        this.gaadi = gaadi;
+    public void setGaadiDrivenInPast(String gaadiDrivenInPast) {
+        this.gaadiDrivenInPast = gaadiDrivenInPast;
     }
 
-    public String getUnderload() {
+    public Boolean getUnderload() {
         return underload;
     }
 
-    public void setUnderload(String underload) {
+    public void setUnderload(Boolean underload) {
         this.underload = underload;
     }
 
-    public String getOverload() {
+    public Boolean getOverload() {
         return overload;
     }
 
-    public void setOverload(String overload) {
+    public void setOverload(Boolean overload) {
         this.overload = overload;
     }
 
@@ -174,12 +201,20 @@ public class VisitorDriver {
         this.regularTiming = regularTiming;
     }
 
-    public String getLeaveTime() {
-        return leaveTime;
+    public Boolean getOccasional() {
+        return occasional;
     }
 
-    public void setLeaveTime(String leaveTime) {
-        this.leaveTime = leaveTime;
+    public void setOccasional(Boolean occasional) {
+        this.occasional = occasional;
+    }
+
+    public Boolean getPermanent() {
+        return permanent;
+    }
+
+    public void setPermanent(Boolean permanent) {
+        this.permanent = permanent;
     }
 
     public String getAnyIssue() {
@@ -198,59 +233,27 @@ public class VisitorDriver {
         this.notes = notes;
     }
 
-    public String getBirthPlace() {
-        return birthPlace;
+    public String getPreferredVehicle() {
+        return preferredVehicle;
     }
 
-    public void setBirthPlace(String birthPlace) {
-        this.birthPlace = birthPlace;
-    }
-
-    public String getGrade() {
-        return grade;
-    }
-
-    public void setGrade(String grade) {
-        this.grade = grade;
-    }
-
-    public String getVehicle() {
-        return vehicle;
-    }
-
-    public void setVehicle(String vehicle) {
-        this.vehicle = vehicle;
-    }
-
-    public String getAssignFor() {
-        return assignFor;
-    }
-
-    public void setAssignFor(String assignFor) {
-        this.assignFor = assignFor;
+    public void setPreferredVehicle(String preferredVehicle) {
+        this.preferredVehicle = preferredVehicle;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
