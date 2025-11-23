@@ -130,13 +130,13 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
         Long regId = request.getDriverRegistrationId();
 
-        // 🔥 NEW FLOW: Only update yfs_driver_verification
-        DriverVerification dv =
-                verificationRepository.findByDriverRegistrationId(regId)
-                        .orElseGet(DriverVerification::new);
+        // Always create new or update existing
+        DriverVerification dv = verificationRepository
+                .findByDriverRegistrationId(regId)
+                .orElse(new DriverVerification());
 
         dv.setDriverRegistrationId(regId);
-        dv.setFinalStatus("APPROVED");    // 🔥 Set APPROVED
+        dv.setFinalStatus("APPROVED");
         dv.setVerifiedBy(
                 request.getApprovedBy() == null ? "SYSTEM_ADMIN" : request.getApprovedBy()
         );
@@ -144,30 +144,8 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
         dv.setRemarks(request.getRemarks());
 
         verificationRepository.save(dv);
-
-        // ❌ OLD FLOW: FINAL SUBMISSION LOGIC (no longer needed)
-        // Commented safely; no deletion so your project stays consistent
-
-        /*
-        DriverFinal df =
-                finalRepository.findByDriverRegistrationId(regId)
-                        .orElseGet(DriverFinal::new);
-
-        df.setDriverRegistrationId(regId);
-        df.setGdcRegistrationNumber(generateGdcNumber(regId));
-        df.setIdCardUrl(uploadIdCardPlaceholder(regId));
-        df.setCompletionStatus("COMPLETED");
-        df.setTermsStatus("PENDING");
-        df.setFinalApprovedBy(request.getApprovedBy() == null
-                ? "SYSTEM_ADMIN"
-                : request.getApprovedBy());
-        df.setFinalApprovedAt(LocalDateTime.now());
-        df.setWhatsappSent(false);
-        df.setRemarks(request.getRemarks());
-
-        finalRepository.save(df);
-        */
     }
+
 
     // ===========================
     //         REJECT DRIVER
@@ -178,12 +156,12 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
         Long regId = request.getDriverRegistrationId();
 
-        DriverVerification dv =
-                verificationRepository.findByDriverRegistrationId(regId)
-                        .orElseGet(DriverVerification::new);
+        DriverVerification dv = verificationRepository
+                .findByDriverRegistrationId(regId)
+                .orElse(new DriverVerification());
 
         dv.setDriverRegistrationId(regId);
-        dv.setFinalStatus("REJECTED");   // 🔥 Set REJECTED
+        dv.setFinalStatus("REJECTED");
         dv.setVerifiedBy(
                 request.getApprovedBy() == null ? "SYSTEM_ADMIN" : request.getApprovedBy()
         );
@@ -191,9 +169,8 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
         dv.setRemarks(request.getRemarks());
 
         verificationRepository.save(dv);
-
-        // ❌ No Final table actions on reject
     }
+
 
     // ===========================
     //         HELPERS
