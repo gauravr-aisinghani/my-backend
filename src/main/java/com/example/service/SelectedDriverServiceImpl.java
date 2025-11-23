@@ -34,6 +34,12 @@ public class SelectedDriverServiceImpl implements SelectedDriverService {
         d.setMobileNo(e.getMobileNo());
         d.setGrade(e.getGrade());
         d.setPreferredVehicle(e.getPreferredVehicle());
+
+        d.setDate(e.getDate());   // <-- FIXED
+        d.setTime(e.getTime());   // <-- FIXED
+
+        d.setApproveFor(e.getApproveFor());
+        d.setAssign(e.getAssign());
         d.setApprovedForAssign(e.getApprovedForAssign());
         d.setAssignedStatus(e.getAssignedStatus());
         d.setSelectionNotes(e.getSelectionNotes());
@@ -54,6 +60,12 @@ public class SelectedDriverServiceImpl implements SelectedDriverService {
         e.setMobileNo(d.getMobileNo());
         e.setGrade(d.getGrade());
         e.setPreferredVehicle(d.getPreferredVehicle());
+
+        e.setDate(d.getDate());   // <-- IMPORTANT
+        e.setTime(d.getTime());   // <-- IMPORTANT
+
+        e.setApproveFor(d.getApproveFor());
+        e.setAssign(d.getAssign());
         e.setApprovedForAssign(d.getApprovedForAssign());
         e.setAssignedStatus(d.getAssignedStatus());
         e.setSelectionNotes(d.getSelectionNotes());
@@ -67,14 +79,13 @@ public class SelectedDriverServiceImpl implements SelectedDriverService {
     @Override
     public SelectedDriverDTO saveSelectedDriver(SelectedDriverDTO dto) {
 
-        // 1️⃣ Convert and save selected driver
         SelectedDriver entity = toEntity(dto);
+
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
 
         SelectedDriver saved = repo.save(entity);
 
-        // 2️⃣ DELETE from visitor table
         if (saved.getVisitorDriverId() != null) {
             if (visitorRepo.existsById(saved.getVisitorDriverId())) {
                 visitorRepo.deleteById(saved.getVisitorDriverId());

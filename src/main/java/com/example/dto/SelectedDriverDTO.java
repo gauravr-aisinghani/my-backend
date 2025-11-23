@@ -1,5 +1,6 @@
 package com.example.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -14,8 +15,11 @@ public class SelectedDriverDTO {
     private String grade;
     private String preferredVehicle;
 
-    // NEW REQUIRED FIELDS
+    // REQUIRED DB FIELDS — NOW FIXED
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime time;
 
     private String approveFor;
@@ -23,7 +27,10 @@ public class SelectedDriverDTO {
     private String approvedForAssign;
     private String assignedStatus;
     private String selectionNotes;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime selectedDate;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
