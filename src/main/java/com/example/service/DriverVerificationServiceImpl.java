@@ -46,17 +46,18 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
     // ===========================
     //        PENDING DRIVERS
     // ===========================
+    
     @Override
     public List<PendingDriverDto> getPendingDrivers() {
 
-        List<DriverDocuments> docs = documentsRepository.findAll();
+        // 1️⃣ Fetch DISTINCT registration IDs so UI does NOT show duplicates
+        List<Long> regIds = documentsRepository.findDistinctRegistrationIds();
+
         List<PendingDriverDto> result = new ArrayList<>();
 
-        for (DriverDocuments d : docs) {
+        for (Long regId : regIds) {
 
-            Long regId = d.getDriverRegistrationId();
-
-            // Skip if already approved
+            // 2️⃣ Skip if already approved
             Optional<DriverVerification> opt =
                     verificationRepository.findByDriverRegistrationId(regId);
 
@@ -64,24 +65,23 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                 continue;
             }
 
+            // 3️⃣ Fetch documents for this regId
+            DriverDocuments d = documentsRepository.findByDriverRegistrationId(regId);
+            if (d == null) continue; // if no docs → skip
+
+            // 4️⃣ Fetch name & mobile PROPERLY using registration_id (not primary key)
+            Optional<DriverDetails> detailsOpt = driverDetailsRepo.findByDriverRegistrationId(regId);
+
+            String name = detailsOpt.map(DriverDetails::getFullName).orElse("N/A");
+            String mobile = detailsOpt.map(DriverDetails::getMobileNumber).orElse("N/A");
+
+            // 5️⃣ Build DTO
             PendingDriverDto dto = new PendingDriverDto();
             dto.setDriverRegistrationId(regId);
-
-            // Fetch name & mobile from DriverDetails
-            String name = "N/A";
-            String mobile = "N/A";
-
-            Optional<DriverDetails> detailsOpt = driverDetailsRepo.findById(regId);
-            if (detailsOpt.isPresent()) {
-                DriverDetails details = detailsOpt.get();
-                name = details.getFullName();
-                mobile = details.getMobileNumber();
-            }
-
             dto.setFullName(name);
             dto.setMobileNo(mobile);
 
-            // Count uploaded docs
+            // 6️⃣ Count uploaded docs
             int cnt = 0;
             if (isNotEmpty(d.getDriverSelfie())) cnt++;
             if (isNotEmpty(d.getHomePhoto())) cnt++;
@@ -101,6 +101,7 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
         return result;
     }
+
 
     // ===========================
     //   VIEW DRIVER DOCUMENTS
