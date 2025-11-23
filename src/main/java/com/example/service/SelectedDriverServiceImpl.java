@@ -3,6 +3,7 @@ package com.example.service;
 import com.example.dto.SelectedDriverDTO;
 import com.example.entity.SelectedDriver;
 import com.example.repository.SelectedDriverRepository;
+import com.example.repository.VisitorDriverRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,10 +14,15 @@ import java.util.stream.Collectors;
 public class SelectedDriverServiceImpl implements SelectedDriverService {
 
     private final SelectedDriverRepository repo;
+    private final VisitorDriverRepository visitorRepo;
 
-    public SelectedDriverServiceImpl(SelectedDriverRepository repo) {
+    public SelectedDriverServiceImpl(SelectedDriverRepository repo,
+                                     VisitorDriverRepository visitorRepo) {
         this.repo = repo;
+        this.visitorRepo = visitorRepo;
     }
+
+    // ---------------- DTO MAPPERS ----------------
 
     private SelectedDriverDTO toDTO(SelectedDriver e) {
         SelectedDriverDTO d = new SelectedDriverDTO();
@@ -56,12 +62,26 @@ public class SelectedDriverServiceImpl implements SelectedDriverService {
         return e;
     }
 
+    // ---------------- CRUD METHODS ----------------
+
     @Override
     public SelectedDriverDTO saveSelectedDriver(SelectedDriverDTO dto) {
+
+        // 1️⃣ Convert and save selected driver
         SelectedDriver entity = toEntity(dto);
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
-        return toDTO(repo.save(entity));
+
+        SelectedDriver saved = repo.save(entity);
+
+        // 2️⃣ DELETE from visitor table
+        if (saved.getVisitorDriverId() != null) {
+            if (visitorRepo.existsById(saved.getVisitorDriverId())) {
+                visitorRepo.deleteById(saved.getVisitorDriverId());
+            }
+        }
+
+        return toDTO(saved);
     }
 
     @Override

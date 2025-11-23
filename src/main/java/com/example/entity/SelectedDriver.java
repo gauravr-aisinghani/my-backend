@@ -1,7 +1,9 @@
 package com.example.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "yfs_selected_driver")
@@ -29,6 +31,20 @@ public class SelectedDriver {
 
     @Column(name = "preferred_vehicle")
     private String preferredVehicle;
+
+    // NEW REQUIRED FIELDS (DB MATCH)
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
+
+    @Column(name = "time", nullable = false)
+    private LocalTime time;
+
+    // optional fields
+    @Column(name = "approve_for")
+    private String approveFor;
+
+    @Column(name = "assign")
+    private String assign;
 
     @Column(name = "approved_for_assign")
     private String approvedForAssign;
@@ -70,6 +86,18 @@ public class SelectedDriver {
 
     public String getPreferredVehicle() { return preferredVehicle; }
     public void setPreferredVehicle(String preferredVehicle) { this.preferredVehicle = preferredVehicle; }
+
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
+
+    public LocalTime getTime() { return time; }
+    public void setTime(LocalTime time) { this.time = time; }
+
+    public String getApproveFor() { return approveFor; }
+    public void setApproveFor(String approveFor) { this.approveFor = approveFor; }
+
+    public String getAssign() { return assign; }
+    public void setAssign(String assign) { this.assign = assign; }
 
     public String getApprovedForAssign() { return approvedForAssign; }
     public void setApprovedForAssign(String approvedForAssign) { this.approvedForAssign = approvedForAssign; }

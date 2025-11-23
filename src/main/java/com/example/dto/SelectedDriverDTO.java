@@ -1,6 +1,8 @@
 package com.example.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class SelectedDriverDTO {
 
@@ -11,14 +13,19 @@ public class SelectedDriverDTO {
     private String mobileNo;
     private String grade;
     private String preferredVehicle;
+
+    // NEW REQUIRED FIELDS
+    private LocalDate date;
+    private LocalTime time;
+
+    private String approveFor;
+    private String assign;
     private String approvedForAssign;
     private String assignedStatus;
     private String selectionNotes;
     private LocalDateTime selectedDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    // -------- GETTERS & SETTERS ----------
 
     public Long getSelectedDriverId() { return selectedDriverId; }
     public void setSelectedDriverId(Long selectedDriverId) { this.selectedDriverId = selectedDriverId; }
@@ -40,6 +47,18 @@ public class SelectedDriverDTO {
 
     public String getPreferredVehicle() { return preferredVehicle; }
     public void setPreferredVehicle(String preferredVehicle) { this.preferredVehicle = preferredVehicle; }
+
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
+
+    public LocalTime getTime() { return time; }
+    public void setTime(LocalTime time) { this.time = time; }
+
+    public String getApproveFor() { return approveFor; }
+    public void setApproveFor(String approveFor) { this.approveFor = approveFor; }
+
+    public String getAssign() { return assign; }
+    public void setAssign(String assign) { this.assign = assign; }
 
     public String getApprovedForAssign() { return approvedForAssign; }
     public void setApprovedForAssign(String approvedForAssign) { this.approvedForAssign = approvedForAssign; }
