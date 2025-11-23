@@ -130,10 +130,17 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
         Long regId = request.getDriverRegistrationId();
 
-        // Always create new or update existing
         DriverVerification dv = verificationRepository
                 .findByDriverRegistrationId(regId)
-                .orElse(new DriverVerification());
+                .orElse(null);
+
+        boolean isNew = false;
+
+        if (dv == null) {
+            dv = new DriverVerification();
+            dv.setCreatedAt(LocalDateTime.now());   // ⭐ MANDATORY FIX ⭐
+            isNew = true;
+        }
 
         dv.setDriverRegistrationId(regId);
         dv.setFinalStatus("APPROVED");
@@ -141,10 +148,12 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                 request.getApprovedBy() == null ? "SYSTEM_ADMIN" : request.getApprovedBy()
         );
         dv.setVerifiedAt(LocalDateTime.now());
+        dv.setUpdatedAt(LocalDateTime.now());
         dv.setRemarks(request.getRemarks());
 
         verificationRepository.save(dv);
     }
+
 
 
     // ===========================
@@ -158,7 +167,15 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
         DriverVerification dv = verificationRepository
                 .findByDriverRegistrationId(regId)
-                .orElse(new DriverVerification());
+                .orElse(null);
+
+        boolean isNew = false;
+
+        if (dv == null) {
+            dv = new DriverVerification();
+            dv.setCreatedAt(LocalDateTime.now());   // ⭐ REQUIRED ⭐
+            isNew = true;
+        }
 
         dv.setDriverRegistrationId(regId);
         dv.setFinalStatus("REJECTED");
@@ -166,10 +183,12 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                 request.getApprovedBy() == null ? "SYSTEM_ADMIN" : request.getApprovedBy()
         );
         dv.setVerifiedAt(LocalDateTime.now());
+        dv.setUpdatedAt(LocalDateTime.now());
         dv.setRemarks(request.getRemarks());
 
         verificationRepository.save(dv);
     }
+
 
 
     // ===========================

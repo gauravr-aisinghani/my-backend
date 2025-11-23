@@ -58,5 +58,15 @@ public class DriverVerification {
     public void setRemarks(String remarks) { this.remarks = remarks; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    // 👉 Added this setter (only change)
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
