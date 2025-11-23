@@ -4,11 +4,11 @@ import com.cloudinary.Cloudinary;
 import com.example.dto.ApproveRequestDto;
 import com.example.dto.PendingDriverDto;
 import com.example.entity.DriverDocuments;
-import com.example.entity.DriverFinal;
+import com.example.entity.DriverFinal; // still imported but unused now
 import com.example.entity.DriverDetails;
 import com.example.entity.DriverVerification;
 import com.example.repository.DriverDocumentsRepository;
-import com.example.repository.DriverFinalRepository;
+import com.example.repository.DriverFinalRepository;  // still injected but not used
 import com.example.repository.DriverDetailsRepository;
 import com.example.repository.DriverVerificationRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,10 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
     private final DriverDocumentsRepository documentsRepository;
     private final DriverVerificationRepository verificationRepository;
+
+    // ❌ This will no longer be used for approve/reject flow
     private final DriverFinalRepository finalRepository;
+
     private final DriverDetailsRepository driverDetailsRepo;
     private final Cloudinary cloudinary;
 
@@ -46,18 +49,15 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
     // ===========================
     //        PENDING DRIVERS
     // ===========================
-    
     @Override
     public List<PendingDriverDto> getPendingDrivers() {
 
-        // 1️⃣ Fetch DISTINCT registration IDs so UI does NOT show duplicates
         List<Long> regIds = documentsRepository.findDistinctRegistrationIds();
 
         List<PendingDriverDto> result = new ArrayList<>();
 
         for (Long regId : regIds) {
 
-            // 2️⃣ Skip if already approved
             Optional<DriverVerification> opt =
                     verificationRepository.findByDriverRegistrationId(regId);
 
@@ -65,23 +65,19 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                 continue;
             }
 
-            // 3️⃣ Fetch documents for this regId
             DriverDocuments d = documentsRepository.findByDriverRegistrationId(regId);
-            if (d == null) continue; // if no docs → skip
+            if (d == null) continue;
 
-            // 4️⃣ Fetch name & mobile PROPERLY using registration_id (not primary key)
             Optional<DriverDetails> detailsOpt = driverDetailsRepo.findByDriverRegistrationId(regId);
 
             String name = detailsOpt.map(DriverDetails::getFullName).orElse("N/A");
             String mobile = detailsOpt.map(DriverDetails::getMobileNumber).orElse("N/A");
 
-            // 5️⃣ Build DTO
             PendingDriverDto dto = new PendingDriverDto();
             dto.setDriverRegistrationId(regId);
             dto.setFullName(name);
             dto.setMobileNo(mobile);
 
-            // 6️⃣ Count uploaded docs
             int cnt = 0;
             if (isNotEmpty(d.getDriverSelfie())) cnt++;
             if (isNotEmpty(d.getHomePhoto())) cnt++;
@@ -134,22 +130,25 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
         Long regId = request.getDriverRegistrationId();
 
-        // 1. Update verification table
+        // 🔥 NEW FLOW: Only update yfs_driver_verification
         DriverVerification dv =
                 verificationRepository.findByDriverRegistrationId(regId)
                         .orElseGet(DriverVerification::new);
 
         dv.setDriverRegistrationId(regId);
-        dv.setFinalStatus("APPROVED");
-        dv.setVerifiedBy(request.getApprovedBy() == null
-                ? "SYSTEM_ADMIN"
-                : request.getApprovedBy());
+        dv.setFinalStatus("APPROVED");    // 🔥 Set APPROVED
+        dv.setVerifiedBy(
+                request.getApprovedBy() == null ? "SYSTEM_ADMIN" : request.getApprovedBy()
+        );
         dv.setVerifiedAt(LocalDateTime.now());
         dv.setRemarks(request.getRemarks());
 
         verificationRepository.save(dv);
 
-        // 2. Create final submission entry
+        // ❌ OLD FLOW: FINAL SUBMISSION LOGIC (no longer needed)
+        // Commented safely; no deletion so your project stays consistent
+
+        /*
         DriverFinal df =
                 finalRepository.findByDriverRegistrationId(regId)
                         .orElseGet(DriverFinal::new);
@@ -167,6 +166,7 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
         df.setRemarks(request.getRemarks());
 
         finalRepository.save(df);
+        */
     }
 
     // ===========================
@@ -183,14 +183,16 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                         .orElseGet(DriverVerification::new);
 
         dv.setDriverRegistrationId(regId);
-        dv.setFinalStatus("REJECTED");
-        dv.setVerifiedBy(request.getApprovedBy() == null
-                ? "SYSTEM_ADMIN"
-                : request.getApprovedBy());
+        dv.setFinalStatus("REJECTED");   // 🔥 Set REJECTED
+        dv.setVerifiedBy(
+                request.getApprovedBy() == null ? "SYSTEM_ADMIN" : request.getApprovedBy()
+        );
         dv.setVerifiedAt(LocalDateTime.now());
         dv.setRemarks(request.getRemarks());
 
         verificationRepository.save(dv);
+
+        // ❌ No Final table actions on reject
     }
 
     // ===========================
@@ -204,6 +206,7 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
         return s == null ? "" : s;
     }
 
+    // ❌ Generate GDC not needed anymore, but kept for future use
     private String generateGdcNumber(Long driverRegistrationId) {
         int rand = new Random().nextInt(9000) + 1000;
         return String.format("GDC-%d-%d-%04d",
@@ -212,6 +215,7 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                 rand);
     }
 
+    // ❌ ID card upload no longer needed but kept
     private String uploadIdCardPlaceholder(Long driverRegistrationId) {
         try {
             Map<?, ?> params = Collections.singletonMap("folder", "wtl/idcards");
