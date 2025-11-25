@@ -42,4 +42,11 @@ public class DriverVerificationController {
         service.rejectDriver(req);
         return ResponseEntity.ok("OK");
     }
+
+    // ✅ NEW ENDPOINT TO FETCH APPROVED DRIVERS
+    @GetMapping("/approved-drivers")
+    public ResponseEntity<List<Map<String, Object>>> getApprovedDrivers() {
+        List<Map<String, Object>> list = service.getApprovedDrivers();
+        return ResponseEntity.ok(list);
+    }
 }

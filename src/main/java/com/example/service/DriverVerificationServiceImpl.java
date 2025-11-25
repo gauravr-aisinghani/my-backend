@@ -4,11 +4,11 @@ import com.cloudinary.Cloudinary;
 import com.example.dto.ApproveRequestDto;
 import com.example.dto.PendingDriverDto;
 import com.example.entity.DriverDocuments;
-import com.example.entity.DriverFinal; // still imported but unused now
+import com.example.entity.DriverFinal;
 import com.example.entity.DriverDetails;
 import com.example.entity.DriverVerification;
 import com.example.repository.DriverDocumentsRepository;
-import com.example.repository.DriverFinalRepository;  // still injected but not used
+import com.example.repository.DriverFinalRepository;
 import com.example.repository.DriverDetailsRepository;
 import com.example.repository.DriverVerificationRepository;
 import org.springframework.stereotype.Service;
@@ -22,10 +22,7 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
     private final DriverDocumentsRepository documentsRepository;
     private final DriverVerificationRepository verificationRepository;
-
-    // ❌ This will no longer be used for approve/reject flow
     private final DriverFinalRepository finalRepository;
-
     private final DriverDetailsRepository driverDetailsRepo;
     private final Cloudinary cloudinary;
 
@@ -98,7 +95,6 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
         return result;
     }
 
-
     // ===========================
     //   VIEW DRIVER DOCUMENTS
     // ===========================
@@ -134,12 +130,9 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                 .findByDriverRegistrationId(regId)
                 .orElse(null);
 
-        boolean isNew = false;
-
         if (dv == null) {
             dv = new DriverVerification();
-            dv.setCreatedAt(LocalDateTime.now());   // ⭐ MANDATORY FIX ⭐
-            isNew = true;
+            dv.setCreatedAt(LocalDateTime.now());
         }
 
         dv.setDriverRegistrationId(regId);
@@ -154,8 +147,6 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
         verificationRepository.save(dv);
     }
 
-
-
     // ===========================
     //         REJECT DRIVER
     // ===========================
@@ -169,12 +160,9 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                 .findByDriverRegistrationId(regId)
                 .orElse(null);
 
-        boolean isNew = false;
-
         if (dv == null) {
             dv = new DriverVerification();
-            dv.setCreatedAt(LocalDateTime.now());   // ⭐ REQUIRED ⭐
-            isNew = true;
+            dv.setCreatedAt(LocalDateTime.now());
         }
 
         dv.setDriverRegistrationId(regId);
@@ -189,7 +177,13 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
         verificationRepository.save(dv);
     }
 
-
+    // ===========================
+    //    APPROVED DRIVERS LIST
+    // ===========================
+    @Override
+    public List<Map<String, Object>> getApprovedDrivers() {
+        return verificationRepository.findApprovedDriversJoined();
+    }
 
     // ===========================
     //         HELPERS
@@ -202,7 +196,6 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
         return s == null ? "" : s;
     }
 
-    // ❌ Generate GDC not needed anymore, but kept for future use
     private String generateGdcNumber(Long driverRegistrationId) {
         int rand = new Random().nextInt(9000) + 1000;
         return String.format("GDC-%d-%d-%04d",
@@ -211,7 +204,6 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
                 rand);
     }
 
-    // ❌ ID card upload no longer needed but kept
     private String uploadIdCardPlaceholder(Long driverRegistrationId) {
         try {
             Map<?, ?> params = Collections.singletonMap("folder", "wtl/idcards");
