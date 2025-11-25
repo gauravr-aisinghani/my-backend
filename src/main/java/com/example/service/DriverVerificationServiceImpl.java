@@ -8,7 +8,7 @@ import com.example.entity.DriverFinal;
 import com.example.entity.DriverDetails;
 import com.example.entity.DriverVerification;
 import com.example.repository.DriverDocumentsRepository;
-import com.example.repository.DriverFinalRepository;
+import com.example.repository.DriverFinalSubmissionRepository;
 import com.example.repository.DriverDetailsRepository;
 import com.example.repository.DriverVerificationRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
 
     private final DriverDocumentsRepository documentsRepository;
     private final DriverVerificationRepository verificationRepository;
-    private final DriverFinalRepository finalRepository;
+    private final DriverFinalSubmissionRepository finalRepository;
     private final DriverDetailsRepository driverDetailsRepo;
     private final Cloudinary cloudinary;
 
@@ -32,7 +32,7 @@ public class DriverVerificationServiceImpl implements DriverVerificationService 
     public DriverVerificationServiceImpl(
             DriverDocumentsRepository documentsRepository,
             DriverVerificationRepository verificationRepository,
-            DriverFinalRepository finalRepository,
+            DriverFinalSubmissionRepository finalRepository,
             DriverDetailsRepository driverDetailsRepo,
             Cloudinary cloudinary
     ) {
