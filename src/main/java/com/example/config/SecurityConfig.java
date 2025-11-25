@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/driver-documents/upload/**").permitAll()
 
                 .requestMatchers("/api/driver-verification/**").permitAll()
-                .requestMatchers("/api/gdc").permitAll()
+                .requestMatchers("/api/gdc/**").permitAll()
 
                 .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
 
