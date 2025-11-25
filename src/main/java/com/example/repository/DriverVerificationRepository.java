@@ -17,15 +17,17 @@ public interface DriverVerificationRepository extends JpaRepository<DriverVerifi
 
     // 🔥 NEW JOIN QUERY TO FETCH APPROVED DRIVERS
     @Query(
-        value = "SELECT dv.verification_id AS verificationId, " +
-                "dd.full_name AS fullName, " +
-                "dd.mobile_number AS mobileNumber, " +
-                "dd.village AS village, " +
-                "dv.updated_at AS verifiedAt " +
-                "FROM yfs_driver_verification dv " +
-                "JOIN yfs_driver_details dd ON dv.driver_registration_id = dd.driver_registration_id " +
-                "WHERE dv.final_status = 'APPROVED'",
-        nativeQuery = true
-    )
-    List<Map<String, Object>> findApprovedDriversJoined();
+    	    value = "SELECT dv.driver_registration_id AS driverRegistrationId, " +  // 🔹 add this
+    	            "dv.verification_id AS verificationId, " +
+    	            "dd.full_name AS fullName, " +
+    	            "dd.mobile_number AS mobileNumber, " +
+    	            "dd.village AS village, " +
+    	            "dv.updated_at AS verifiedAt " +
+    	            "FROM yfs_driver_verification dv " +
+    	            "JOIN yfs_driver_details dd ON dv.driver_registration_id = dd.driver_registration_id " +
+    	            "WHERE dv.final_status = 'APPROVED'",
+    	    nativeQuery = true
+    	)
+    	List<Map<String, Object>> findApprovedDriversJoined();
+
 }
