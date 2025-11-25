@@ -26,39 +26,39 @@ private String token;
 private String phoneId;
 
 
-// send image message via WhatsApp Cloud API
 public boolean sendImageMessage(String toNumber, String imageUrl) {
-try (CloseableHttpClient client = HttpClients.createDefault()) {
-String url = "https://graph.facebook.com/v17.0/" + phoneId + "/messages";
-HttpPost post = new HttpPost(url);
-post.setHeader("Authorization", "Bearer " + token);
-post.setHeader("Content-Type", "application/json");
 
+    if (token == null || token.isEmpty() || phoneId == null || phoneId.isEmpty()) {
+        System.out.println("WhatsApp credentials missing → skipping WhatsApp sending.");
+        return false;
+    }
 
-JSONObject image = new JSONObject();
-image.put("link", imageUrl);
+    try (CloseableHttpClient client = HttpClients.createDefault()) {
+        String url = "https://graph.facebook.com/v17.0/" + phoneId + "/messages";
+        HttpPost post = new HttpPost(url);
+        post.setHeader("Authorization", "Bearer " + token);
+        post.setHeader("Content-Type", "application/json");
 
+        JSONObject image = new JSONObject();
+        image.put("link", imageUrl);
 
-JSONObject body = new JSONObject();
-body.put("messaging_product", "whatsapp");
-body.put("to", toNumber);
-body.put("type", "image");
-body.put("image", image);
+        JSONObject body = new JSONObject();
+        body.put("messaging_product", "whatsapp");
+        body.put("to", toNumber);
+        body.put("type", "image");
+        body.put("image", image);
 
+        post.setEntity(new StringEntity(body.toString(), StandardCharsets.UTF_8));
 
-StringEntity entity = new StringEntity(body.toString(), StandardCharsets.UTF_8);
-post.setEntity(entity);
+        try (CloseableHttpResponse resp = client.execute(post)) {
+            int status = resp.getStatusLine().getStatusCode();
+            return status >= 200 && status < 300;
+        }
 
-
-try (CloseableHttpResponse resp = client.execute(post)) {
-int status = resp.getStatusLine().getStatusCode();
-return status >= 200 && status < 300;
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+    }
 }
 
-
-} catch (Exception ex) {
-ex.printStackTrace();
-return false;
-}
-}
 }
