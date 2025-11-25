@@ -46,56 +46,53 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
 
         Long driverRegId = dto.getDriverRegistrationId();
 
-        // ------------------------------------------------
         // 1️⃣ Auto-generate GDC number
-        // ------------------------------------------------
         String gdcNumber = dto.getGdcRegistrationNumber();
         if (gdcNumber == null || gdcNumber.isBlank()) {
             long seq = repo.count() + 1;
             gdcNumber = String.format("GDC-YFS-%06d", seq);
         }
 
-        // ------------------------------------------------
-        // 2️⃣ Fetch merged driver profile (JOIN)
-        // ------------------------------------------------
+        // 2️⃣ Fetch full profile
         FinalDriverProfileDTO profile = repo.getFullDriverProfile(driverRegId);
 
         String fullName = (profile != null) ? profile.getFullName() : "N/A";
         String mobile = (profile != null) ? profile.getMobileNumber() : "N/A";
         String formattedAddress = (profile != null) ? profile.getFullAddress() : "N/A";
 
-        // ------------------------------------------------
-        // 3️⃣ Load Selfie Properly
-        // ------------------------------------------------
+        // 3️⃣ Load Selfie
         BufferedImage selfie = null;
 
         try {
             String selfieUrl = (profile != null) ? profile.getDriverSelfie() : null;
 
+            System.out.println("🖼 Selfie URL from DB: " + selfieUrl);
+
             if (selfieUrl != null && !selfieUrl.isBlank()) {
 
-                System.out.println("🔗 Loading selfie from: " + selfieUrl);
-
-                // Cloudinary URL case → load via URL
+                // Case: Cloudinary or web URL
                 if (selfieUrl.startsWith("http://") || selfieUrl.startsWith("https://")) {
                     selfie = ImageIO.read(new URL(selfieUrl));
+                    System.out.println("✅ Loaded selfie from URL successfully.");
                 }
-                // Local file fallback
+                // Case: Local file
                 else {
                     File local = new File(selfieUrl);
                     if (local.exists()) {
                         selfie = ImageIO.read(local);
+                        System.out.println("✅ Loaded selfie from local file.");
+                    } else {
+                        System.out.println("❌ Local selfie file does NOT exist: " + selfieUrl);
                     }
                 }
             }
+
         } catch (Exception e) {
-            System.out.println("⚠ Failed to load selfie, using fallback picture.");
-            selfie = null; // force fallback image inside IdCardGenerator
+            System.out.println("⚠ Failed to load selfie → Will use fallback image.");
+            selfie = null;
         }
 
-        // ------------------------------------------------
-        // 4️⃣ Generate ID Card Image Bytes
-        // ------------------------------------------------
+        // 4️⃣ Generate ID Card
         byte[] cardBytes = IdCardGenerator.generateFancyCardBytes(
                 selfie,
                 fullName,
@@ -108,13 +105,20 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
 
         if (cardBytes != null) {
             fileToUpload = IdCardGenerator.writeBytesToTempPng(cardBytes, driverRegId);
+            System.out.println("🧾 Generated ID card stored temporarily at: " + fileToUpload.getAbsolutePath());
         } else {
+            // The fallback path
             fileToUpload = new File(fallbackIdCardPath);
+
+            System.out.println("🛑 Using fallback ID card image!");
+            System.out.println("📍 Fallback image path: " + fileToUpload.getAbsolutePath());
+
+            if (!fileToUpload.exists()) {
+                System.out.println("❌ ERROR: Fallback image does NOT exist at the given path!");
+            }
         }
 
-        // ------------------------------------------------
-        // 5️⃣ Upload Generated Card to Cloudinary
-        // ------------------------------------------------
+        // 5️⃣ Upload to Cloudinary
         Map upload = cloudinary.uploader().upload(
                 fileToUpload,
                 ObjectUtils.asMap(
@@ -127,9 +131,7 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
 
         String uploadedCardUrl = upload.get("secure_url").toString();
 
-        // ------------------------------------------------
-        // 6️⃣ Save Final Submission
-        // ------------------------------------------------
+        // 6️⃣ Save in DB
         DriverFinalSubmission entity = new DriverFinalSubmission();
         entity.setDriverRegistrationId(driverRegId);
         entity.setVerificationId(dto.getVerificationId());
