@@ -50,24 +50,30 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
         }
 
         // -------------------------------------
-        // 2️⃣ Generate ID Card PNG bytes
+        // 2️⃣ Generate ID Card (Fancy Card)
         // -------------------------------------
         byte[] pngBytes = null;
         try {
-            pngBytes = IdCardGenerator.generateFancyCardBytes("", gdcNumber);
+            pngBytes = IdCardGenerator.generateFancyCardBytes(
+                    "",
+                    gdcNumber
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         // -------------------------------------
-        // 3️⃣ Write PNG to Temp File OR fallback
+        // 3️⃣ Save PNG to temporary file OR fallback
         // -------------------------------------
         File uploadFile;
 
         if (pngBytes != null) {
-            uploadFile = IdCardGenerator.writeBytesToTempPng(pngBytes, dto.getDriverRegistrationId());
+            uploadFile = IdCardGenerator.writeBytesToTempPng(
+                    pngBytes,
+                    dto.getDriverRegistrationId()
+            );
         } else {
-            uploadFile = new File(fallbackIdCardPath); // fallback image from your config
+            uploadFile = new File(fallbackIdCardPath);
         }
 
         // -------------------------------------
@@ -87,7 +93,7 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
                 : null;
 
         // -------------------------------------
-        // 5️⃣ Save into Database
+        // 5️⃣ Save to Database
         // -------------------------------------
         DriverFinalSubmission entity = new DriverFinalSubmission();
         entity.setDriverRegistrationId(dto.getDriverRegistrationId());
@@ -107,9 +113,9 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
         repo.save(entity);
 
         // -------------------------------------
-        // 6️⃣ (Optional) Send WhatsApp
+        // 6️⃣ WhatsApp sending is FULLY DISABLED now
         // -------------------------------------
-        // Only if frontend sends phoneNumber or we fetch it from driver table
+        System.out.println("📵 WhatsApp sending skipped (Meta not configured).");
 
         return new FinalSubmissionResponseDto(
                 gdcNumber,
