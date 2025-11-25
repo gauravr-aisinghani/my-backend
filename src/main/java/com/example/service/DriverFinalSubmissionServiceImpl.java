@@ -47,38 +47,54 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
         Long driverRegId = dto.getDriverRegistrationId();
 
         // ------------------------------------------------
-        // 1️⃣ GDC Number (Auto-generate if missing)
+        // 1️⃣ Auto-generate GDC number
         // ------------------------------------------------
         String gdcNumber = dto.getGdcRegistrationNumber();
-        if (gdcNumber == null || gdcNumber.trim().isEmpty()) {
+        if (gdcNumber == null || gdcNumber.isBlank()) {
             long seq = repo.count() + 1;
             gdcNumber = String.format("GDC-YFS-%06d", seq);
         }
 
         // ------------------------------------------------
-        // 2️⃣ Fetch merged driver data with JOIN
+        // 2️⃣ Fetch merged driver profile (JOIN)
         // ------------------------------------------------
         FinalDriverProfileDTO profile = repo.getFullDriverProfile(driverRegId);
 
-        String fullName = profile != null ? profile.getFullName() : "N/A";
-        String mobile = profile != null ? profile.getMobileNumber() : "N/A";
-        String formattedAddress = profile != null ? profile.getFullAddress() : "N/A";
+        String fullName = (profile != null) ? profile.getFullName() : "N/A";
+        String mobile = (profile != null) ? profile.getMobileNumber() : "N/A";
+        String formattedAddress = (profile != null) ? profile.getFullAddress() : "N/A";
 
         // ------------------------------------------------
-        // 3️⃣ Load selfie (URL → BufferedImage)
+        // 3️⃣ Load Selfie Properly
         // ------------------------------------------------
         BufferedImage selfie = null;
-        if (profile != null && profile.getDriverSelfie() != null) {
-            try {
-                selfie = ImageIO.read(new URL(profile.getDriverSelfie()));
-            } catch (Exception ex) {
-                File f = new File(profile.getDriverSelfie());
-                if (f.exists()) selfie = ImageIO.read(f);
+
+        try {
+            String selfieUrl = (profile != null) ? profile.getDriverSelfie() : null;
+
+            if (selfieUrl != null && !selfieUrl.isBlank()) {
+
+                System.out.println("🔗 Loading selfie from: " + selfieUrl);
+
+                // Cloudinary URL case → load via URL
+                if (selfieUrl.startsWith("http://") || selfieUrl.startsWith("https://")) {
+                    selfie = ImageIO.read(new URL(selfieUrl));
+                }
+                // Local file fallback
+                else {
+                    File local = new File(selfieUrl);
+                    if (local.exists()) {
+                        selfie = ImageIO.read(local);
+                    }
+                }
             }
+        } catch (Exception e) {
+            System.out.println("⚠ Failed to load selfie, using fallback picture.");
+            selfie = null; // force fallback image inside IdCardGenerator
         }
 
         // ------------------------------------------------
-        // 4️⃣ Generate GDC ID Card
+        // 4️⃣ Generate ID Card Image Bytes
         // ------------------------------------------------
         byte[] cardBytes = IdCardGenerator.generateFancyCardBytes(
                 selfie,
@@ -89,6 +105,7 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
         );
 
         File fileToUpload;
+
         if (cardBytes != null) {
             fileToUpload = IdCardGenerator.writeBytesToTempPng(cardBytes, driverRegId);
         } else {
@@ -96,9 +113,9 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
         }
 
         // ------------------------------------------------
-        // 5️⃣ Upload to Cloudinary
+        // 5️⃣ Upload Generated Card to Cloudinary
         // ------------------------------------------------
-        Map uploadResult = cloudinary.uploader().upload(
+        Map upload = cloudinary.uploader().upload(
                 fileToUpload,
                 ObjectUtils.asMap(
                         "folder", "driver_documents/" + driverRegId,
@@ -108,7 +125,7 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
                 )
         );
 
-        String uploadedCardUrl = uploadResult.get("secure_url").toString();
+        String uploadedCardUrl = upload.get("secure_url").toString();
 
         // ------------------------------------------------
         // 6️⃣ Save Final Submission
@@ -130,7 +147,7 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
 
         repo.save(entity);
 
-        System.out.println("📵 WhatsApp sending skipped (disabled).");
+        System.out.println("📵 WhatsApp sending disabled. Skipping...");
 
         return new FinalSubmissionResponseDto(
                 gdcNumber,
