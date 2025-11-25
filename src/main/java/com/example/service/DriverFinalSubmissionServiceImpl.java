@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.dto.FinalDriverProfileDTO;
 import com.example.dto.FinalSubmissionRequestDto;
 import com.example.dto.FinalSubmissionResponseDto;
 import com.example.entity.DriverFinalSubmission;
@@ -12,7 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -40,66 +44,80 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
     @Transactional
     public FinalSubmissionResponseDto generateFinalSubmission(FinalSubmissionRequestDto dto) throws Exception {
 
-        // -------------------------------------
-        // 1️⃣ Generate GDC Registration Number
-        // -------------------------------------
+        Long driverRegId = dto.getDriverRegistrationId();
+
+        // ------------------------------------------------
+        // 1️⃣ GDC Number (Auto-generate if missing)
+        // ------------------------------------------------
         String gdcNumber = dto.getGdcRegistrationNumber();
-
         if (gdcNumber == null || gdcNumber.trim().isEmpty()) {
-            gdcNumber = "GDC-" + dto.getDriverRegistrationId() + "-" + System.currentTimeMillis();
+            long seq = repo.count() + 1;
+            gdcNumber = String.format("GDC-YFS-%06d", seq);
         }
 
-        // -------------------------------------
-        // 2️⃣ Generate ID Card (Fancy Card)
-        // -------------------------------------
-        byte[] pngBytes = null;
-        try {
-            pngBytes = IdCardGenerator.generateFancyCardBytes(
-                    "",
-                    gdcNumber
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
+        // ------------------------------------------------
+        // 2️⃣ Fetch merged driver data with JOIN
+        // ------------------------------------------------
+        FinalDriverProfileDTO profile = repo.getFullDriverProfile(driverRegId);
+
+        String fullName = profile != null ? profile.getFullName() : "N/A";
+        String mobile = profile != null ? profile.getMobileNumber() : "N/A";
+        String formattedAddress = profile != null ? profile.getFullAddress() : "N/A";
+
+        // ------------------------------------------------
+        // 3️⃣ Load selfie (URL → BufferedImage)
+        // ------------------------------------------------
+        BufferedImage selfie = null;
+        if (profile != null && profile.getDriverSelfie() != null) {
+            try {
+                selfie = ImageIO.read(new URL(profile.getDriverSelfie()));
+            } catch (Exception ex) {
+                File f = new File(profile.getDriverSelfie());
+                if (f.exists()) selfie = ImageIO.read(f);
+            }
         }
 
-        // -------------------------------------
-        // 3️⃣ Save PNG to temporary file OR fallback
-        // -------------------------------------
-        File uploadFile;
+        // ------------------------------------------------
+        // 4️⃣ Generate GDC ID Card
+        // ------------------------------------------------
+        byte[] cardBytes = IdCardGenerator.generateFancyCardBytes(
+                selfie,
+                fullName,
+                mobile,
+                formattedAddress,
+                gdcNumber
+        );
 
-        if (pngBytes != null) {
-            uploadFile = IdCardGenerator.writeBytesToTempPng(
-                    pngBytes,
-                    dto.getDriverRegistrationId()
-            );
+        File fileToUpload;
+        if (cardBytes != null) {
+            fileToUpload = IdCardGenerator.writeBytesToTempPng(cardBytes, driverRegId);
         } else {
-            uploadFile = new File(fallbackIdCardPath);
+            fileToUpload = new File(fallbackIdCardPath);
         }
 
-        // -------------------------------------
-        // 4️⃣ Upload to Cloudinary
-        // -------------------------------------
+        // ------------------------------------------------
+        // 5️⃣ Upload to Cloudinary
+        // ------------------------------------------------
         Map uploadResult = cloudinary.uploader().upload(
-                uploadFile,
+                fileToUpload,
                 ObjectUtils.asMap(
-                        "folder", "driver_documents/" + dto.getDriverRegistrationId(),
+                        "folder", "driver_documents/" + driverRegId,
                         "public_id", "gdc_id_card",
-                        "overwrite", true
+                        "overwrite", true,
+                        "resource_type", "image"
                 )
         );
 
-        String secureUrl = uploadResult.get("secure_url") != null
-                ? uploadResult.get("secure_url").toString()
-                : null;
+        String uploadedCardUrl = uploadResult.get("secure_url").toString();
 
-        // -------------------------------------
-        // 5️⃣ Save to Database
-        // -------------------------------------
+        // ------------------------------------------------
+        // 6️⃣ Save Final Submission
+        // ------------------------------------------------
         DriverFinalSubmission entity = new DriverFinalSubmission();
-        entity.setDriverRegistrationId(dto.getDriverRegistrationId());
+        entity.setDriverRegistrationId(driverRegId);
         entity.setVerificationId(dto.getVerificationId());
         entity.setGdcRegistrationNumber(gdcNumber);
-        entity.setIdCardUrl(secureUrl);
+        entity.setIdCardUrl(uploadedCardUrl);
         entity.setCompletionStatus("PENDING");
         entity.setFinalApprovedBy(dto.getFinalApprovedBy());
         entity.setRemarks(dto.getRemarks());
@@ -112,14 +130,11 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
 
         repo.save(entity);
 
-        // -------------------------------------
-        // 6️⃣ WhatsApp sending is FULLY DISABLED now
-        // -------------------------------------
-        System.out.println("📵 WhatsApp sending skipped (Meta not configured).");
+        System.out.println("📵 WhatsApp sending skipped (disabled).");
 
         return new FinalSubmissionResponseDto(
                 gdcNumber,
-                secureUrl,
+                uploadedCardUrl,
                 "GDC generated & saved successfully"
         );
     }
