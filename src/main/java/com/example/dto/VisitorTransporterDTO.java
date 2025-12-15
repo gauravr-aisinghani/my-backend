@@ -1,23 +1,52 @@
 package com.example.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class VisitorTransporterDTO {
 
+    @JsonProperty("companyName")
     private String companyName;
+
+    @JsonProperty("ownerName")
     private String ownerName;
+
+    @JsonProperty("ownerMobileNo")
     private String ownerMobileNo;
+
+    @JsonProperty("authorisedName")
     private String authorisedName;
+
+    @JsonProperty("authorisedMobileNo")
     private String authorisedMobileNo;
+
+    @JsonProperty("needDriver")
     private Integer needDriver;
+
+    @JsonProperty("gaadiType")
     private String gaadiType;
+
+    @JsonProperty("runningApplication")
     private String runningApplication;
+
+    @JsonProperty("loadingPlace")
     private String loadingPlace;
+
+    @JsonProperty("unloadPlace")
     private String unloadPlace;
+
+    @JsonProperty("monthlySalary")
     private Double monthlySalary;
+
+    @JsonProperty("otherBenefit")
     private String otherBenefit;
+
+    @JsonProperty("needTiming")
     private String needTiming;
+
+    @JsonProperty("notes")
     private String notes;
 
-    // Getters and Setters
+    // ✅ Getters and Setters
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }
 
