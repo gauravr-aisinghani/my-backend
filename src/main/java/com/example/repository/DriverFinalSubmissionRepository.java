@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface DriverFinalSubmissionRepository extends JpaRepository<DriverFinalSubmission, Long> {
 
@@ -33,4 +35,7 @@ public interface DriverFinalSubmissionRepository extends JpaRepository<DriverFin
         WHERE d.driverRegistrationId = :regId
     """)
     FinalDriverProfileDTO getFullDriverProfile(Long regId);
+
+    // ✅ New method: find driver by GDC registration number
+    Optional<DriverFinalSubmission> findByGdcRegistrationNumber(String gdcRegistrationNumber);
 }
