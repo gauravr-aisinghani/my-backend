@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,187 +15,108 @@ public class VisitorTransporterEntity {
     @Column(name = "visitor_transporter_id")
     private Long visitorTransporterId;
 
-    private LocalDate visitDate;
-
+    @Column(name = "company_name")
     private String companyName;
+
+    @Column(name = "owner_name")
     private String ownerName;
+
+    @Column(name = "owner_mobile_no")
     private String ownerMobileNo;
 
+    @Column(name = "authorised_name")
     private String authorisedName;
+
+    @Column(name = "authorised_mobile_no")
     private String authorisedMobileNo;
 
+    @Column(name = "need_driver")
     private Integer needDriver;
+
+    @Column(name = "gaadi_type")
     private String gaadiType;
+
+    @Column(name = "running_application")
     private String runningApplication;
 
+    @Column(name = "loading_place")
     private String loadingPlace;
+
+    @Column(name = "unload_place")
     private String unloadPlace;
 
+    @Column(name = "monthly_salary")
     private Double monthlySalary;
+
+    @Column(name = "other_benefit")
     private String otherBenefit;
+
+    @Column(name = "need_timing")
     private String needTiming;
 
-    private String status;
+    @Column(name = "notes")
     private String notes;
 
+    @Column(name = "status")
+    private String status;
+
     @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-	public Long getVisitorTransporterId() {
-		return visitorTransporterId;
-	}
+    // Getters and Setters
+    public Long getVisitorTransporterId() { return visitorTransporterId; }
+    public void setVisitorTransporterId(Long visitorTransporterId) { this.visitorTransporterId = visitorTransporterId; }
 
-	public void setVisitorTransporterId(Long visitorTransporterId) {
-		this.visitorTransporterId = visitorTransporterId;
-	}
+    public String getCompanyName() { return companyName; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
 
-	public LocalDate getVisitDate() {
-		return visitDate;
-	}
+    public String getOwnerName() { return ownerName; }
+    public void setOwnerName(String ownerName) { this.ownerName = ownerName; }
 
-	public void setVisitDate(LocalDate visitDate) {
-		this.visitDate = visitDate;
-	}
+    public String getOwnerMobileNo() { return ownerMobileNo; }
+    public void setOwnerMobileNo(String ownerMobileNo) { this.ownerMobileNo = ownerMobileNo; }
 
-	public String getCompanyName() {
-		return companyName;
-	}
+    public String getAuthorisedName() { return authorisedName; }
+    public void setAuthorisedName(String authorisedName) { this.authorisedName = authorisedName; }
 
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
-	}
+    public String getAuthorisedMobileNo() { return authorisedMobileNo; }
+    public void setAuthorisedMobileNo(String authorisedMobileNo) { this.authorisedMobileNo = authorisedMobileNo; }
 
-	public String getOwnerName() {
-		return ownerName;
-	}
+    public Integer getNeedDriver() { return needDriver; }
+    public void setNeedDriver(Integer needDriver) { this.needDriver = needDriver; }
 
-	public void setOwnerName(String ownerName) {
-		this.ownerName = ownerName;
-	}
+    public String getGaadiType() { return gaadiType; }
+    public void setGaadiType(String gaadiType) { this.gaadiType = gaadiType; }
 
-	public String getOwnerMobileNo() {
-		return ownerMobileNo;
-	}
+    public String getRunningApplication() { return runningApplication; }
+    public void setRunningApplication(String runningApplication) { this.runningApplication = runningApplication; }
 
-	public void setOwnerMobileNo(String ownerMobileNo) {
-		this.ownerMobileNo = ownerMobileNo;
-	}
+    public String getLoadingPlace() { return loadingPlace; }
+    public void setLoadingPlace(String loadingPlace) { this.loadingPlace = loadingPlace; }
 
-	public String getAuthorisedName() {
-		return authorisedName;
-	}
+    public String getUnloadPlace() { return unloadPlace; }
+    public void setUnloadPlace(String unloadPlace) { this.unloadPlace = unloadPlace; }
 
-	public void setAuthorisedName(String authorisedName) {
-		this.authorisedName = authorisedName;
-	}
+    public Double getMonthlySalary() { return monthlySalary; }
+    public void setMonthlySalary(Double monthlySalary) { this.monthlySalary = monthlySalary; }
 
-	public String getAuthorisedMobileNo() {
-		return authorisedMobileNo;
-	}
+    public String getOtherBenefit() { return otherBenefit; }
+    public void setOtherBenefit(String otherBenefit) { this.otherBenefit = otherBenefit; }
 
-	public void setAuthorisedMobileNo(String authorisedMobileNo) {
-		this.authorisedMobileNo = authorisedMobileNo;
-	}
+    public String getNeedTiming() { return needTiming; }
+    public void setNeedTiming(String needTiming) { this.needTiming = needTiming; }
 
-	public Integer getNeedDriver() {
-		return needDriver;
-	}
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 
-	public void setNeedDriver(Integer needDriver) {
-		this.needDriver = needDriver;
-	}
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-	public String getGaadiType() {
-		return gaadiType;
-	}
-
-	public void setGaadiType(String gaadiType) {
-		this.gaadiType = gaadiType;
-	}
-
-	public String getRunningApplication() {
-		return runningApplication;
-	}
-
-	public void setRunningApplication(String runningApplication) {
-		this.runningApplication = runningApplication;
-	}
-
-	public String getLoadingPlace() {
-		return loadingPlace;
-	}
-
-	public void setLoadingPlace(String loadingPlace) {
-		this.loadingPlace = loadingPlace;
-	}
-
-	public String getUnloadPlace() {
-		return unloadPlace;
-	}
-
-	public void setUnloadPlace(String unloadPlace) {
-		this.unloadPlace = unloadPlace;
-	}
-
-	public Double getMonthlySalary() {
-		return monthlySalary;
-	}
-
-	public void setMonthlySalary(Double monthlySalary) {
-		this.monthlySalary = monthlySalary;
-	}
-
-	public String getOtherBenefit() {
-		return otherBenefit;
-	}
-
-	public void setOtherBenefit(String otherBenefit) {
-		this.otherBenefit = otherBenefit;
-	}
-
-	public String getNeedTiming() {
-		return needTiming;
-	}
-
-	public void setNeedTiming(String needTiming) {
-		this.needTiming = needTiming;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getNotes() {
-		return notes;
-	}
-
-	public void setNotes(String notes) {
-		this.notes = notes;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-    // Getters & Setters
-    
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

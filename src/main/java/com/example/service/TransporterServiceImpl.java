@@ -25,10 +25,8 @@ public class TransporterServiceImpl implements TransporterService {
 
     @Override
     public VisitorTransporterEntity saveVisitor(VisitorTransporterDTO dto) {
-
         VisitorTransporterEntity entity = new VisitorTransporterEntity();
 
-        entity.setVisitDate(dto.getVisitDate());
         entity.setCompanyName(dto.getCompanyName());
         entity.setOwnerName(dto.getOwnerName());
         entity.setOwnerMobileNo(dto.getOwnerMobileNo());
@@ -56,7 +54,6 @@ public class TransporterServiceImpl implements TransporterService {
     @Transactional
     @Override
     public void addToFinal(Long visitorTransporterId) {
-
         VisitorTransporterEntity visitor =
                 visitorRepo.findById(visitorTransporterId)
                         .orElseThrow(() -> new RuntimeException("Visitor not found"));
@@ -65,23 +62,19 @@ public class TransporterServiceImpl implements TransporterService {
 
         selected.setVisitorTransporterId(visitor.getVisitorTransporterId());
         selected.setFinalDate(LocalDate.now());
-
         selected.setCompanyName(visitor.getCompanyName());
         selected.setOwnerName(visitor.getOwnerName());
         selected.setOwnerMobileNo(visitor.getOwnerMobileNo());
         selected.setAuthorisedName(visitor.getAuthorisedName());
         selected.setAuthorisedMobileNo(visitor.getAuthorisedMobileNo());
-
         selected.setQtyFinalDriver(visitor.getNeedDriver());
         selected.setGaadiType(visitor.getGaadiType());
         selected.setFinalApplication(visitor.getRunningApplication());
-
         selected.setLoadingPlace(visitor.getLoadingPlace());
         selected.setUnloadPlace(visitor.getUnloadPlace());
         selected.setMonthlySalary(visitor.getMonthlySalary());
         selected.setOtherBenefit(visitor.getOtherBenefit());
         selected.setNeedTiming(visitor.getNeedTiming());
-
         selected.setApprovalStatus("APPROVED");
 
         selectedRepo.save(selected);
