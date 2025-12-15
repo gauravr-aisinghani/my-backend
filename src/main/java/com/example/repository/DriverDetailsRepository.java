@@ -8,6 +8,9 @@ public interface DriverDetailsRepository extends JpaRepository<DriverDetails, Lo
 
     Optional<DriverDetails> findByMobileNumber(String mobileNumber);
     Optional<DriverDetails> findByAadharNo(String aadharNo);
+    boolean existsByMobileNumber(String mobileNumber);
+    boolean existsByAadharNo(String aadharNo);
+
 
     // 🔥 New: fetch driver details using driver_registration_id
     Optional<DriverDetails> findByDriverRegistrationId(Long driverRegistrationId);

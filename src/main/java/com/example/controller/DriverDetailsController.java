@@ -28,6 +28,11 @@ public class DriverDetailsController {
         String res = service.sendOtp(mobileNumber);
         return ResponseEntity.ok(res);
     }
+    
+    
+ // 🔍 Check Aadhaar Unique
+ 
+
 
     // Verify OTP
     @PostMapping("/verify-otp")
