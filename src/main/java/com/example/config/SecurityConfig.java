@@ -44,7 +44,9 @@ public class SecurityConfig {
 
                 .requestMatchers("/api/driver-verification/**").permitAll()
                 .requestMatchers("/api/gdc/**").permitAll()
-
+                .requestMatchers("/api/driver/payment/create/**").permitAll()
+                .requestMatchers("/api/driver/payment/**").permitAll()
+                 
                 .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
