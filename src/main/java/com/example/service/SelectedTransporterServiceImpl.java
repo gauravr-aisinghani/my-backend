@@ -4,6 +4,9 @@ import com.example.dto.SelectedTransporterDTO;
 import com.example.entity.SelectedTransporter;
 import com.example.repository.SelectedTransporterRepository;
 import com.example.service.SelectedTransporterService;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,4 +43,17 @@ public class SelectedTransporterServiceImpl implements SelectedTransporterServic
 
         return repository.save(entity);
     }
+    
+    
+    @Override
+    public List<SelectedTransporter> getAllSelectedTransporters() {
+        return repository.findAll();
+    }
+
+    @Override
+    public SelectedTransporter getSelectedTransporterById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Selected transporter not found"));
+    }
+
 }
