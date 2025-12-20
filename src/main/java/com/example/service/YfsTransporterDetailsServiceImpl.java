@@ -1,11 +1,13 @@
 package com.example.service;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.example.dto.YfsTransporterDetailsDto;
 import com.example.entity.YfsTransporterDetails;
 import com.example.repository.YfsTransporterDetailsRepository;
-import com.example.service.YfsTransporterDetailsService;
 
 @Service
 public class YfsTransporterDetailsServiceImpl
@@ -24,7 +26,10 @@ public class YfsTransporterDetailsServiceImpl
 
         YfsTransporterDetails entity = new YfsTransporterDetails();
 
-        entity.setTransporterRegistrationId(dto.getTransporterRegistrationId());
+        // 🔑 FIX: Generate UUID here (DO NOT take from frontend)
+        String registrationId = UUID.randomUUID().toString();
+        entity.setTransporterRegistrationId(registrationId);
+
         entity.setTransportCompanyName(dto.getTransportCompanyName());
         entity.setGstNumber(dto.getGstNumber());
         entity.setAddress(dto.getAddress());
@@ -37,8 +42,13 @@ public class YfsTransporterDetailsServiceImpl
         entity.setAadharNumber(dto.getAadharNumber());
         entity.setDlNumber(dto.getDlNumber());
 
+        entity.setCreatedAt(LocalDateTime.now());
+        entity.setUpdatedAt(LocalDateTime.now());
+
         repository.save(entity);
 
+        // return generated ID back to frontend
+        dto.setTransporterRegistrationId(registrationId);
         return dto;
     }
 
