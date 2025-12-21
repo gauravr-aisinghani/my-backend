@@ -1,12 +1,13 @@
 package com.example.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.Repository;
+import org.springframework.stereotype.Repository as Repo;
 
 import java.util.List;
 
-@Repository
-public interface DriverReportRepository {
+@Repo
+public interface DriverReportRepository extends Repository<Object, Long> {
 
     /* Visitor funnel */
     @Query(value = "SELECT COUNT(*) FROM yfs_visitor_driver", nativeQuery = true)
