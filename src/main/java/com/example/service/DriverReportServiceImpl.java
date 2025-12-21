@@ -26,7 +26,6 @@ public class DriverReportServiceImpl implements DriverReportService {
         summary.setRegisteredDrivers(repository.countRegisteredDrivers());
         summary.setDocumentsUploaded(repository.countDocumentsUploaded());
         summary.setVerificationPending(repository.countVerificationPending());
-        summary.setVerifiedDrivers(repository.countVerifiedDrivers());
         summary.setGdcGenerated(repository.countGdcGenerated());
 
         List<Object[]> rows = repository.fetchDriverReportRows();
@@ -45,4 +44,5 @@ public class DriverReportServiceImpl implements DriverReportService {
 
         return new DriverReportResponseDto(summary, drivers);
     }
+
 }

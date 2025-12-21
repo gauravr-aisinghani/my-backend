@@ -8,39 +8,50 @@ import java.util.List;
 
 public interface DriverReportRepository extends JpaRepository<DriverDetails, Long> {
 
-    /* Visitor funnel */
+    /* ================= VISITOR FUNNEL ================= */
+
     @Query(value = "SELECT COUNT(*) FROM yfs_visitor_driver", nativeQuery = true)
     Long countVisitors();
 
     @Query(value = "SELECT COUNT(*) FROM yfs_selected_driver", nativeQuery = true)
     Long countSelectedVisitors();
 
-    /* Registration funnel */
+
+    /* ================= DRIVER FUNNEL ================= */
+
+    // Registered drivers
     @Query(value = "SELECT COUNT(*) FROM yfs_driver_details", nativeQuery = true)
     Long countRegisteredDrivers();
 
-    @Query(value = "SELECT COUNT(*) FROM yfs_driver_documents", nativeQuery = true)
+    // Documents uploaded
+    @Query(value = """
+        SELECT COUNT(DISTINCT driver_registration_id)
+        FROM yfs_driver_documents
+    """, nativeQuery = true)
     Long countDocumentsUploaded();
 
+    // Verification pending
+    // Rule: exists in documents BUT NOT in verification
     @Query(value = """
-        SELECT COUNT(*) FROM yfs_driver_verification
-        WHERE final_status IS NULL OR final_status != 'VERIFIED'
+        SELECT COUNT(DISTINCT doc.driver_registration_id)
+        FROM yfs_driver_documents doc
+        LEFT JOIN yfs_driver_verification v
+          ON doc.driver_registration_id = v.driver_registration_id
+        WHERE v.driver_registration_id IS NULL
     """, nativeQuery = true)
     Long countVerificationPending();
 
+    // GDC generated
     @Query(value = """
-        SELECT COUNT(*) FROM yfs_driver_verification
-        WHERE final_status = 'VERIFIED'
-    """, nativeQuery = true)
-    Long countVerifiedDrivers();
-
-    @Query(value = """
-        SELECT COUNT(*) FROM yfs_driver_final_submission
+        SELECT COUNT(DISTINCT driver_registration_id)
+        FROM yfs_driver_final_submission
         WHERE gdc_registration_number IS NOT NULL
     """, nativeQuery = true)
     Long countGdcGenerated();
 
-    /* Main report list */
+
+    /* ================= MAIN REPORT LIST (NO CHANGE) ================= */
+
     @Query(value = """
         SELECT
           d.driver_registration_id,
@@ -65,3 +76,4 @@ public interface DriverReportRepository extends JpaRepository<DriverDetails, Lon
     """, nativeQuery = true)
     List<Object[]> fetchDriverReportRows();
 }
+
