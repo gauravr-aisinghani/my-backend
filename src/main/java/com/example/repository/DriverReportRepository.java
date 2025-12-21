@@ -1,11 +1,12 @@
 package com.example.repository;
 
+import com.example.entity.DriverDetails;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
 
 import java.util.List;
 
-public interface DriverReportRepository extends Repository<Object, Long> {
+public interface DriverReportRepository extends JpaRepository<DriverDetails, Long> {
 
     /* Visitor funnel */
     @Query(value = "SELECT COUNT(*) FROM yfs_visitor_driver", nativeQuery = true)
