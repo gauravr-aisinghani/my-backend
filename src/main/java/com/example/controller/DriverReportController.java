@@ -16,7 +16,9 @@ public class DriverReportController {
     }
 
     @GetMapping
-    public ResponseEntity<DriverReportResponseDto> getDriverReport() {
-        return ResponseEntity.ok(service.getDriverReport());
+    public ResponseEntity<DriverReportResponseDto> getDriverReport(
+            @RequestParam(required = false) String stage
+    ) {
+        return ResponseEntity.ok(service.getDriverReport(stage));
     }
 }

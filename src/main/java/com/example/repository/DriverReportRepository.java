@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DriverReportRepository extends JpaRepository<DriverDetails, Long> {
 
-    /* ================= VISITOR FUNNEL ================= */
+    /* ================= SUMMARY ================= */
 
     @Query(value = "SELECT COUNT(*) FROM yfs_visitor_driver", nativeQuery = true)
     Long countVisitors();
@@ -16,22 +16,9 @@ public interface DriverReportRepository extends JpaRepository<DriverDetails, Lon
     @Query(value = "SELECT COUNT(*) FROM yfs_selected_driver", nativeQuery = true)
     Long countSelectedVisitors();
 
-
-    /* ================= DRIVER FUNNEL ================= */
-
-    // Registered drivers
     @Query(value = "SELECT COUNT(*) FROM yfs_driver_details", nativeQuery = true)
     Long countRegisteredDrivers();
 
-    // Documents uploaded
-    @Query(value = """
-        SELECT COUNT(DISTINCT driver_registration_id)
-        FROM yfs_driver_documents
-    """, nativeQuery = true)
-    Long countDocumentsUploaded();
-
-    // Verification pending
-    // Rule: exists in documents BUT NOT in verification
     @Query(value = """
         SELECT COUNT(DISTINCT doc.driver_registration_id)
         FROM yfs_driver_documents doc
@@ -41,7 +28,6 @@ public interface DriverReportRepository extends JpaRepository<DriverDetails, Lon
     """, nativeQuery = true)
     Long countVerificationPending();
 
-    // GDC generated
     @Query(value = """
         SELECT COUNT(DISTINCT driver_registration_id)
         FROM yfs_driver_final_submission
@@ -49,8 +35,7 @@ public interface DriverReportRepository extends JpaRepository<DriverDetails, Lon
     """, nativeQuery = true)
     Long countGdcGenerated();
 
-
-    /* ================= MAIN REPORT LIST (NO CHANGE) ================= */
+    /* ================= TABLE (STAGE BASED ONLY) ================= */
 
     @Query(value = """
         SELECT
@@ -60,20 +45,20 @@ public interface DriverReportRepository extends JpaRepository<DriverDetails, Lon
           CASE
             WHEN f.final_id IS NOT NULL THEN 'GDC_GENERATED'
             WHEN v.final_status = 'VERIFIED' THEN 'VERIFIED'
-            WHEN doc.driver_document_id IS NOT NULL THEN 'DOCUMENTS_UPLOADED'
             ELSE 'REGISTERED'
           END AS stage,
           v.final_status,
           f.gdc_registration_number
         FROM yfs_driver_details d
-        LEFT JOIN yfs_driver_documents doc
-            ON d.driver_registration_id = doc.driver_registration_id
         LEFT JOIN yfs_driver_verification v
             ON d.driver_registration_id = v.driver_registration_id
         LEFT JOIN yfs_driver_final_submission f
             ON d.driver_registration_id = f.driver_registration_id
+        WHERE
+          (:stage = 'REGISTERED' AND v.driver_registration_id IS NULL AND f.driver_registration_id IS NULL)
+          OR (:stage = 'VERIFIED' AND v.final_status = 'VERIFIED')
+          OR (:stage = 'GDC_GENERATED' AND f.gdc_registration_number IS NOT NULL)
         ORDER BY d.created_at DESC
     """, nativeQuery = true)
-    List<Object[]> fetchDriverReportRows();
+    List<Object[]> fetchDriverReportRowsByStage(String stage);
 }
-
