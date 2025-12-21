@@ -2,11 +2,9 @@ package com.example.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
-import org.springframework.stereotype.Repository as Repo;
 
 import java.util.List;
 
-@Repo
 public interface DriverReportRepository extends Repository<Object, Long> {
 
     /* Visitor funnel */
