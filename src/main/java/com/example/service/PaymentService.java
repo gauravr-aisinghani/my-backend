@@ -38,46 +38,61 @@ public class PaymentService {
     public CreatePaymentResponse createOrder(CreatePaymentRequest req) {
 
         // ===============================
-        // 1️⃣ Validate GDC (Driver only for now)
+        // 1️⃣ Validate GDC (Driver)
         // ===============================
         if (req.getType() == PaymentType.DRIVER) {
-            driverRepo.findByGdcRegistrationNumber(req.getGdcNumber())
-                    .orElseThrow(() ->
-                            new RuntimeException("Driver GDC not found"));
+
+            DriverFinalSubmission driver =
+                    driverRepo.findByGdcRegistrationNumber(req.getGdcNumber())
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Invalid Driver GDC number: " + req.getGdcNumber()
+                                    )
+                            );
+
+            if (!"COMPLETED".equalsIgnoreCase(driver.getCompletionStatus())) {
+                throw new RuntimeException("Driver GDC is not fully approved");
+            }
         }
 
         // ===============================
-        // 2️⃣ Prevent double payment
+        // 2️⃣ Prevent duplicate payment (CREATED or PAID)
         // ===============================
-        boolean alreadyPaid =
-                paymentRepo.existsByGdcNumberAndPaymentTypeAndStatus(
-                        req.getGdcNumber(),
-                        req.getType(),
-                        PaymentStatus.PAID
+        paymentRepo.findByGdcNumberAndPaymentType(
+                req.getGdcNumber(),
+                req.getType()
+        ).ifPresent(existing -> {
+            if (existing.getStatus() == PaymentStatus.CREATED ||
+                existing.getStatus() == PaymentStatus.PAID) {
+                throw new RuntimeException(
+                        "Payment already initiated for this GDC"
                 );
+            }
+        });
 
-        if (alreadyPaid) {
-            throw new RuntimeException("Payment already completed for this GDC");
-        }
+        // ===============================
+        // 3️⃣ Decide amount (BACKEND ONLY)
+        // ===============================
+        int amount = getAmountForType(req.getType());
 
         try {
             // ===============================
-            // 3️⃣ Create Razorpay Order
+            // 4️⃣ Create Razorpay Order
             // ===============================
             JSONObject options = new JSONObject();
-            options.put("amount", req.getAmount() * 100); // paise
+            options.put("amount", amount * 100); // paise
             options.put("currency", "INR");
             options.put("receipt", "rcpt_" + System.currentTimeMillis());
 
             Order order = razorpayClient.orders.create(options);
 
             // ===============================
-            // 4️⃣ Save Payment (MASTER)
+            // 5️⃣ Save Payment (MASTER)
             // ===============================
             Payment payment = new Payment();
             payment.setGdcNumber(req.getGdcNumber());
             payment.setPaymentType(req.getType());
-            payment.setAmount(req.getAmount().doubleValue());
+            payment.setAmount((double) amount);
             payment.setCurrency("INR");
             payment.setRazorpayOrderId(order.get("id"));
             payment.setStatus(PaymentStatus.CREATED);
@@ -85,7 +100,7 @@ public class PaymentService {
             paymentRepo.save(payment);
 
             // ===============================
-            // 5️⃣ Save Transaction History
+            // 6️⃣ Save Transaction History
             // ===============================
             PaymentTransaction txn = new PaymentTransaction();
             txn.setPayment(payment);
@@ -97,11 +112,11 @@ public class PaymentService {
             txnRepo.save(txn);
 
             // ===============================
-            // 6️⃣ Build Response for Frontend
+            // 7️⃣ Response for Frontend
             // ===============================
             CreatePaymentResponse res = new CreatePaymentResponse();
             res.setOrderId(order.get("id"));
-            res.setAmount(req.getAmount() * 100);
+            res.setAmount(amount * 100);
             res.setCurrency("INR");
             res.setKey(razorpayKeyId);
 
@@ -110,5 +125,18 @@ public class PaymentService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to create Razorpay order", e);
         }
+    }
+
+    // ===============================
+    // Amount decision logic
+    // ===============================
+    private int getAmountForType(PaymentType type) {
+        if (type == PaymentType.DRIVER) {
+            return 500;
+        }
+        if (type == PaymentType.TRANSPORTER) {
+            return 500; // change later
+        }
+        throw new RuntimeException("Invalid payment type");
     }
 }
