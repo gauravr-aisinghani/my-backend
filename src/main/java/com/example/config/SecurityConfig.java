@@ -20,6 +20,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class SecurityConfig {
 
+    // ✅ INJECT EXISTING FILTER (IMPORTANT)
+    private final SessionAuthFilter sessionAuthFilter;
+
+    public SecurityConfig(SessionAuthFilter sessionAuthFilter) {
+        this.sessionAuthFilter = sessionAuthFilter;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -38,20 +45,16 @@ public class SecurityConfig {
                 .requestMatchers("/api/selected-driver/**").permitAll()
                 .requestMatchers("/api/drivers").permitAll()
                 .requestMatchers("/api/drivers/**").permitAll()
-                .requestMatchers("/api/reports/drivers/**").permitAll()
                 .requestMatchers("/api/reports/drivers").permitAll()
-
-
+                .requestMatchers("/api/reports/drivers/**").permitAll()
 
                 .requestMatchers("/api/driver-documents/upload/**").permitAll()
                 .requestMatchers("/driver-documents/upload/**").permitAll()
-                
 
                 .requestMatchers("/api/driver-verification/**").permitAll()
                 .requestMatchers("/api/gdc/**").permitAll()
                 .requestMatchers("/api/payments/**").permitAll()
 
-                 
                 .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -61,12 +64,12 @@ public class SecurityConfig {
             .formLogin(form -> form.disable())
             .httpBasic(httpBasic -> httpBasic.disable())
 
-            // ⭐ Correct placement of SessionAuthFilter
-            .addFilterBefore(new SessionAuthFilter(), AnonymousAuthenticationFilter.class)
+            // ✅ USE SPRING-MANAGED FILTER (FIX)
+            .addFilterBefore(sessionAuthFilter, AnonymousAuthenticationFilter.class)
 
-            // ⭐ Return 401 for expired session instead of redirecting
             .exceptionHandling(e -> e
-                .authenticationEntryPoint((req, res, ex) -> res.sendError(401, "Unauthorized"))
+                .authenticationEntryPoint((req, res, ex) ->
+                        res.sendError(401, "Unauthorized"))
             );
 
         return http.build();
@@ -76,11 +79,9 @@ public class SecurityConfig {
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-
-        serializer.setSameSite("None");  
+        serializer.setSameSite("None");
         serializer.setUseSecureCookie(true);
         serializer.setCookiePath("/");
-
         return serializer;
     }
 
@@ -95,18 +96,15 @@ public class SecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-
         config.setAllowedOrigins(List.of(
             "https://lambent-yeot-32a75f.netlify.app"
         ));
-
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Set-Cookie"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
         return source;
     }
 
