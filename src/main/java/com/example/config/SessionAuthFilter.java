@@ -22,6 +22,19 @@ public class SessionAuthFilter implements Filter {
     ) throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
+        String path = req.getRequestURI();
+
+        // ✅ BYPASS PUBLIC APIS (IMPORTANT)
+        if (
+                path.startsWith("/api/auth") ||
+                path.startsWith("/api/payments") ||   // ⭐ payment APIs
+                path.startsWith("/api/gdc") ||
+                path.startsWith("/api/drivers")
+        ) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         HttpSession session = req.getSession(false);
 
         // ⭐ If no session OR expired → clear security context

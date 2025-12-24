@@ -38,9 +38,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/selected-driver/**").permitAll()
                 .requestMatchers("/api/drivers").permitAll()
                 .requestMatchers("/api/drivers/**").permitAll()
+                .requestMatchers("/api/reports/drivers/**").permitAll()
+                .requestMatchers("/api/reports/drivers").permitAll()
+
+
 
                 .requestMatchers("/api/driver-documents/upload/**").permitAll()
                 .requestMatchers("/driver-documents/upload/**").permitAll()
+                
 
                 .requestMatchers("/api/driver-verification/**").permitAll()
                 .requestMatchers("/api/gdc/**").permitAll()
