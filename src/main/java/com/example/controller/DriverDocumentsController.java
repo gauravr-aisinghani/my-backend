@@ -31,7 +31,7 @@ public class DriverDocumentsController {
             @RequestParam("aadharPhoto") MultipartFile aadharPhoto,
             @RequestParam("panPhoto") MultipartFile panPhoto,
             @RequestParam("licencePhoto") MultipartFile licencePhoto,
-            @RequestParam("paymentProofUpi") MultipartFile paymentProofUpi,
+            @RequestParam(value="paymentProofUpi",required=false) MultipartFile paymentProofUpi,
             @RequestParam("driverSignature") MultipartFile driverSignature
     ) throws Exception {
 

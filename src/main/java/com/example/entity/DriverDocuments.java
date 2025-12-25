@@ -41,7 +41,7 @@ public class DriverDocuments {
     @Column(name = "licence_photo", nullable = false, length = 255)
     private String licencePhoto;
 
-    @Column(name = "payment_proof_upi", nullable = false, length = 255)
+    @Column(name = "payment_proof_upi", nullable = true, length = 255)
     private String paymentProofUpi;
 
     @Column(name = "driver_signature", nullable = false, length = 255)

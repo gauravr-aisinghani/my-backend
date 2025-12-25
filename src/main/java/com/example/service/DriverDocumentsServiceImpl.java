@@ -147,7 +147,13 @@ public class DriverDocumentsServiceImpl implements DriverDocumentsService {
         doc.setAadharPhoto(upload(driverRegistrationId, "aadhar_photo", aadharPhoto));
         doc.setPanPhoto(upload(driverRegistrationId, "pan_photo", panPhoto));
         doc.setLicencePhoto(upload(driverRegistrationId, "licence_photo", licencePhoto));
-        doc.setPaymentProofUpi(upload(driverRegistrationId, "payment_proof_upi", paymentProofUpi));
+        if (paymentProofUpi != null && !paymentProofUpi.isEmpty()) {
+            doc.setPaymentProofUpi(
+                upload(driverRegistrationId, "payment_proof_upi", paymentProofUpi)
+            );
+        } else {
+            doc.setPaymentProofUpi(null);
+        }
         doc.setDriverSignature(upload(driverRegistrationId, "driver_signature", driverSignature));
 
         DriverDocuments saved = repository.save(doc);
