@@ -137,7 +137,7 @@ public class DriverFinalSubmissionServiceImpl implements DriverFinalSubmissionSe
         entity.setVerificationId(dto.getVerificationId());
         entity.setGdcRegistrationNumber(gdcNumber);
         entity.setIdCardUrl(uploadedCardUrl);
-        entity.setCompletionStatus("PENDING");
+        entity.setCompletionStatus("COMPLETED");
         entity.setFinalApprovedBy(dto.getFinalApprovedBy());
         entity.setRemarks(dto.getRemarks());
         entity.setTermsStatus(dto.getTermsStatus() == null ? "ACCEPT" : dto.getTermsStatus());
