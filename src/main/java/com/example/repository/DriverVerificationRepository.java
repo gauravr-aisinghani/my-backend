@@ -14,7 +14,6 @@ public interface DriverVerificationRepository extends JpaRepository<DriverVerifi
 
     Optional<DriverVerification> findByDriverRegistrationId(Long driverRegistrationId);
 
-    // 🔥 FETCH ALL APPROVED DRIVERS (NO COMPLETION STATUS FILTER)
     @Query(
         value = "SELECT dv.driver_registration_id AS driverRegistrationId, " +
                 "dv.verification_id AS verificationId, " +
@@ -26,13 +25,14 @@ public interface DriverVerificationRepository extends JpaRepository<DriverVerifi
                 "FROM yfs_driver_verification dv " +
                 "JOIN yfs_driver_details dd " +
                 "ON dv.driver_registration_id = dd.driver_registration_id " +
-                "JOIN yfs_driver_final_submission dfs " +
+                "LEFT JOIN yfs_driver_final_submission dfs " +
                 "ON dv.driver_registration_id = dfs.driver_registration_id " +
                 "AND dv.verification_id = dfs.verification_id " +
-                "WHERE dv.final_status = 'APPROVED'",
+                "WHERE dv.final_status = 'APPROVED' " +
+                "AND (dfs.completion_status IS NULL OR dfs.completion_status <> 'COMPLETED')",
         nativeQuery = true
     )
     List<Map<String, Object>> findApprovedDriversJoined();
-
 }
+
 
