@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,14 +21,35 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class SecurityConfig {
 
-    // ✅ INJECT EXISTING FILTER (IMPORTANT)
     private final SessionAuthFilter sessionAuthFilter;
 
     public SecurityConfig(SessionAuthFilter sessionAuthFilter) {
         this.sessionAuthFilter = sessionAuthFilter;
     }
 
+    // ===================== PAYMENT APIs (NO SECURITY AT ALL) =====================
     @Bean
+    @Order(1)
+    public SecurityFilterChain paymentFilterChain(HttpSecurity http) throws Exception {
+
+        http
+            .securityMatcher("/api/payments/**")
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .sessionManagement(session -> session.disable())
+            .securityContext(context -> context.disable())
+            .requestCache(cache -> cache.disable())
+            .exceptionHandling(ex -> ex.disable())
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable());
+
+        return http.build();
+    }
+
+    // ===================== MAIN SECURITY =====================
+    @Bean
+    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
@@ -35,25 +57,16 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/logout").permitAll()
-                .requestMatchers("/api/auth/session-status").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-
                 .requestMatchers("/api/client/**").permitAll()
                 .requestMatchers("/api/visitor-driver/**").permitAll()
                 .requestMatchers("/api/selected-driver/**").permitAll()
-                .requestMatchers("/api/drivers").permitAll()
                 .requestMatchers("/api/drivers/**").permitAll()
-                .requestMatchers("/api/reports/drivers").permitAll()
                 .requestMatchers("/api/reports/drivers/**").permitAll()
-
                 .requestMatchers("/api/driver-documents/upload/**").permitAll()
                 .requestMatchers("/driver-documents/upload/**").permitAll()
-
                 .requestMatchers("/api/driver-verification/**").permitAll()
                 .requestMatchers("/api/gdc/**").permitAll()
-                .requestMatchers("/api/payments/**").permitAll()
 
                 .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
 
@@ -62,9 +75,8 @@ public class SecurityConfig {
             )
 
             .formLogin(form -> form.disable())
-            .httpBasic(httpBasic -> httpBasic.disable())
+            .httpBasic(basic -> basic.disable())
 
-            // ✅ USE SPRING-MANAGED FILTER (FIX)
             .addFilterBefore(sessionAuthFilter, AnonymousAuthenticationFilter.class)
 
             .exceptionHandling(e -> e
@@ -75,7 +87,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ---------------- COOKIE CONFIG FOR PRODUCTION ----------------
+    // ===================== COOKIE =====================
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
@@ -90,7 +102,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ---------------- CORS CONFIG ----------------
+    // ===================== CORS =====================
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
