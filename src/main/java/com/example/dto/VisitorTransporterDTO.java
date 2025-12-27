@@ -1,4 +1,5 @@
 package com.example.dto;
+import java.time.LocalDateTime;
 
 public class VisitorTransporterDTO {
 
@@ -18,6 +19,7 @@ public class VisitorTransporterDTO {
     private String needTiming;
     private String notes;
     private String status;
+    private LocalDateTime createdAt;
 	public Long getVisitorTransporterId() {
 		return visitorTransporterId;
 	}
@@ -32,6 +34,14 @@ public class VisitorTransporterDTO {
 	}
 	public String getOwnerName() {
 		return ownerName;
+	}
+	
+	public LocalDateTime getCreatedAt() {
+	    return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+	    this.createdAt = createdAt;
 	}
 	public void setOwnerName(String ownerName) {
 		this.ownerName = ownerName;

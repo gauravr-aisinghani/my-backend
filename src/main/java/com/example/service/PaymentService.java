@@ -2,10 +2,17 @@ package com.example.service;
 
 import com.example.dto.CreatePaymentRequest;
 import com.example.dto.CreatePaymentResponse;
+import com.example.dto.VerifyPaymentRequest;
+import com.example.dto.VerifyPaymentResponse;
 import com.example.entity.*;
 import com.example.repository.*;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +29,10 @@ public class PaymentService {
     @Value("${razorpay.key-id}")
     private String razorpayKeyId;
 
+    
+    @Value("${razorpay.key-secret}")
+    private String razorpayKeySecret;
+ 
     public PaymentService(
             RazorpayClient razorpayClient,
             PaymentRepository paymentRepo,
@@ -141,4 +152,69 @@ public class PaymentService {
         }
         throw new RuntimeException("Invalid payment type");
     }
+    
+    
+    public VerifyPaymentResponse verifyPayment(VerifyPaymentRequest req) {
+
+        Payment payment = paymentRepo
+                .findByRazorpayOrderId(req.getRazorpayOrderId())
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+        String data = req.getRazorpayOrderId() + "|" + req.getRazorpayPaymentId();
+
+        String generatedSignature = generateSignature(data, razorpayKeySecret);
+
+        if (!generatedSignature.equals(req.getRazorpaySignature())) {
+
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepo.save(payment);
+
+            saveTransaction(payment, req, PaymentEventType.PAYMENT_FAILED);
+
+            return new VerifyPaymentResponse("FAILED", "Invalid payment signature");
+        }
+
+        // ✅ SUCCESS
+        payment.setRazorpayPaymentId(req.getRazorpayPaymentId());
+        payment.setRazorpaySignature(req.getRazorpaySignature());
+        payment.setStatus(PaymentStatus.PAID);
+        paymentRepo.save(payment);
+
+        saveTransaction(payment, req, PaymentEventType.PAYMENT_SUCCESS);
+
+        return new VerifyPaymentResponse("SUCCESS", "Payment verified successfully");
+    }
+    
+    
+    private String generateSignature(String data, String secret) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey =
+                    new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            mac.init(secretKey);
+            byte[] rawHmac = mac.doFinal(data.getBytes());
+            return Hex.encodeHexString(rawHmac);
+        } catch (Exception e) {
+            throw new RuntimeException("Signature verification failed", e);
+        }
+    }
+
+    
+    private void saveTransaction(Payment payment,
+            VerifyPaymentRequest req,
+            PaymentEventType eventType) {
+
+PaymentTransaction txn = new PaymentTransaction();
+txn.setPayment(payment);
+txn.setRazorpayOrderId(req.getRazorpayOrderId());
+txn.setRazorpayPaymentId(req.getRazorpayPaymentId());
+txn.setRazorpaySignature(req.getRazorpaySignature());
+txn.setEventType(eventType);
+txn.setAmount(payment.getAmount());
+txn.setCurrency(payment.getCurrency());
+
+txnRepo.save(txn);
+}
+
+
 }

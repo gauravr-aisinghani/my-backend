@@ -106,6 +106,7 @@ public class VisitorTransporterServiceImpl implements VisitorTransporterService 
         dto.setNeedTiming(entity.getNeedTiming());
         dto.setNotes(entity.getNotes());
         dto.setStatus(entity.getStatus());
+        dto.setCreatedAt(entity.getCreatedAt());
         return dto;
     }
 }
