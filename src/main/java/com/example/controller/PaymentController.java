@@ -20,5 +20,14 @@ public class PaymentController {
 
         return paymentService.createOrder(request);
     }
+    
+    
+    @PostMapping("/verify")
+    public VerifyPaymentResponse verifyPayment(
+            @RequestBody VerifyPaymentRequest request) {
+
+        return paymentService.verifyPayment(request);
+    }
+
 
 }
