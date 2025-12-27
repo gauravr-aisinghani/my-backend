@@ -24,10 +24,16 @@ public class SessionAuthFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         String path = req.getRequestURI();
 
-        // ✅ BYPASS PUBLIC APIS (IMPORTANT)
+        // ✅ FINAL RULE:
+        // Payment APIs MUST work WITHOUT session
+        if (path.startsWith("/api/payments")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        // ✅ Existing public APIs
         if (
                 path.startsWith("/api/auth") ||
-                path.startsWith("/api/payments") ||   // ⭐ payment APIs
                 path.startsWith("/api/gdc") ||
                 path.startsWith("/api/drivers")
         ) {
@@ -37,9 +43,8 @@ public class SessionAuthFilter implements Filter {
 
         HttpSession session = req.getSession(false);
 
-        // ⭐ If no session OR expired → clear security context
+        // ❌ NO SESSION → JUST CONTINUE (NO 401)
         if (session == null) {
-            SecurityContextHolder.clearContext();
             chain.doFilter(request, response);
             return;
         }
@@ -47,14 +52,11 @@ public class SessionAuthFilter implements Filter {
         Object role = session.getAttribute("ROLE");
         Object email = session.getAttribute("CLIENT_EMAIL");
 
-        // ⭐ If missing session attributes → clear security
         if (role == null || email == null) {
-            SecurityContextHolder.clearContext();
             chain.doFilter(request, response);
             return;
         }
 
-        // ⭐ Create Spring Security authentication
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(
                         email,
@@ -63,7 +65,6 @@ public class SessionAuthFilter implements Filter {
                 );
 
         SecurityContextHolder.getContext().setAuthentication(auth);
-
         chain.doFilter(request, response);
     }
 }
