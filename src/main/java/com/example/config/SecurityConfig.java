@@ -67,7 +67,9 @@ public class SecurityConfig {
                 .requestMatchers("/driver-documents/upload/**").permitAll()
                 .requestMatchers("/api/driver-verification/**").permitAll()
                 .requestMatchers("/api/gdc/**").permitAll()
-
+                .requestMatchers("/api/payments/**").permitAll()
+                .requestMatchers("/api/transporter/**").permitAll()
+                .requestMatchers("/api/transporter").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
