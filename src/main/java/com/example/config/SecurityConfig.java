@@ -70,6 +70,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/payments/**").permitAll()
                 .requestMatchers("/api/transporter/**").permitAll()
                 .requestMatchers("/api/transporter").permitAll()
+                .requestMatchers("/api/transporter-vehicle").permitAll()
+                .requestMatchers("/api/transporter-vehicle/**").permitAll()
+                .requestMatchers("/api/transporter-documents/**").permitAll()
+                .requestMatchers("/api/transporter-documents").permitAll()
+                .requestMatchers("/api/transporter-verification/**").permitAll()
+                .requestMatchers("/api/transporter-verification").permitAll()
+
+
                 .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
