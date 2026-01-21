@@ -40,17 +40,12 @@ public class TransporterFinalSubmissionServiceImpl
             TransporterFinalSubmissionRequestDto dto
     ) throws Exception {
 
-        // 🔥 FIX: trim added
-        String regId = dto.getTransporterRegistrationId().trim();
-
-        // Debug (temporary)
+        String regId = dto.getTransporterRegistrationId();
         System.out.println("REG ID FROM API = [" + regId + "]");
 
-        // Already generated check
         boolean alreadyGenerated =
                 repo.existsByTransporterRegistrationIdAndCompletionStatus(
-                        regId,
-                        "COMPLETED"
+                        regId, "COMPLETED"
                 );
 
         if (alreadyGenerated) {
@@ -61,16 +56,16 @@ public class TransporterFinalSubmissionServiceImpl
             );
         }
 
-        // Generate GDC
         String gdc = dto.getGdcRegistrationNumber();
         if (gdc == null || gdc.isBlank()) {
             gdc = "GDC-T-" + String.format("%06d", repo.count() + 1);
         }
 
-        // Fetch transporter details
         Object[] row = repo.getFullTransporterProfileRaw(regId);
 
-        if (row == null || row.length < 4) {
+        // 🔥 HARD SAFETY
+        if (row == null) {
+            System.out.println("DB QUERY RETURNED NULL ROW");
             return new TransporterFinalSubmissionResponseDto(
                     null,
                     null,
@@ -78,9 +73,9 @@ public class TransporterFinalSubmissionServiceImpl
             );
         }
 
-        String companyName = row[0] != null ? row[0].toString() : "";
-        String mobileNumber = row[1] != null ? row[1].toString() : "";
-        String fullAddress = row[2] != null ? row[2].toString() : "";
+        String companyName = row[0] != null ? row[0].toString() : "N/A";
+        String mobileNumber = row[1] != null ? row[1].toString() : "N/A";
+        String fullAddress = row[2] != null ? row[2].toString() : "N/A";
         String selfieUrl = row[3] != null ? row[3].toString() : null;
 
         FinalTransporterProfileDTO profile = new FinalTransporterProfileDTO(
