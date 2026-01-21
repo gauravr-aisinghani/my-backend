@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -61,11 +62,10 @@ public class TransporterFinalSubmissionServiceImpl
             gdc = "GDC-T-" + String.format("%06d", repo.count() + 1);
         }
 
-        Object[] row = repo.getFullTransporterProfileRaw(regId);
+        List<Map<String, Object>> rows =
+                repo.getFullTransporterProfileRaw(regId);
 
-        // 🔥 HARD SAFETY
-        if (row == null) {
-            System.out.println("DB QUERY RETURNED NULL ROW");
+        if (rows == null || rows.isEmpty()) {
             return new TransporterFinalSubmissionResponseDto(
                     null,
                     null,
@@ -73,10 +73,12 @@ public class TransporterFinalSubmissionServiceImpl
             );
         }
 
-        String companyName = row[0] != null ? row[0].toString() : "N/A";
-        String mobileNumber = row[1] != null ? row[1].toString() : "N/A";
-        String fullAddress = row[2] != null ? row[2].toString() : "N/A";
-        String selfieUrl = row[3] != null ? row[3].toString() : null;
+        Map<String, Object> row = rows.get(0);
+
+        String companyName = row.get("companyName") != null ? row.get("companyName").toString() : "N/A";
+        String mobileNumber = row.get("mobileNumber") != null ? row.get("mobileNumber").toString() : "N/A";
+        String fullAddress = row.get("fullAddress") != null ? row.get("fullAddress").toString() : "N/A";
+        String selfieUrl = row.get("selfieUrl") != null ? row.get("selfieUrl").toString() : null;
 
         FinalTransporterProfileDTO profile = new FinalTransporterProfileDTO(
                 companyName,
