@@ -14,7 +14,7 @@ public interface TransporterFinalSubmissionRepository
     Optional<TransporterFinalSubmission>
     findByGdcRegistrationNumber(String gdcRegistrationNumber);
 
-    // ✅ RAW native query (field-matched with your tables)
+    // ✅ Native query returns Object[]
     @Query(value = """
         SELECT 
             d.transport_company_name,

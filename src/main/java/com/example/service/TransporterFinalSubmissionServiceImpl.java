@@ -50,17 +50,23 @@ public class TransporterFinalSubmissionServiceImpl
         // ✅ Native query result
         Object[] row = repo.getFullTransporterProfileRaw(regId);
 
-        if (row == null) {
+        if (row == null || row.length < 4) {
             throw new RuntimeException(
                 "Transporter details not found for registrationId: " + regId
             );
         }
 
+        // ✅ Convert Object[] to String safely
+        String companyName = row[0] != null ? row[0].toString() : "";
+        String mobileNumber = row[1] != null ? row[1].toString() : "";
+        String fullAddress = row[2] != null ? row[2].toString() : "";
+        String selfieUrl = row[3] != null ? row[3].toString() : null;
+
         FinalTransporterProfileDTO profile = new FinalTransporterProfileDTO(
-                (String) row[0],  // company name
-                (String) row[1],  // mobile
-                (String) row[2],  // address
-                (String) row[3]   // selfie url
+                companyName,
+                mobileNumber,
+                fullAddress,
+                selfieUrl
         );
 
         BufferedImage selfie = null;
