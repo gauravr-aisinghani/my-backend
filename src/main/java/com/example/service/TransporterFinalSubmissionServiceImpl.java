@@ -47,8 +47,19 @@ public class TransporterFinalSubmissionServiceImpl
             gdc = "GDC-T-" + String.format("%06d", repo.count() + 1);
         }
 
-        FinalTransporterProfileDTO profile =
-                repo.getFullTransporterProfile(regId);
+        // ✅ UPDATED: native query result handling
+        Object[] row = repo.getFullTransporterProfileRaw(regId);
+
+        FinalTransporterProfileDTO profile = null;
+
+        if (row != null && row.length == 4) {
+            profile = new FinalTransporterProfileDTO(
+                    (String) row[0],
+                    (String) row[1],
+                    (String) row[2],
+                    (String) row[3]
+            );
+        }
 
         BufferedImage selfie = null;
         if (profile != null && profile.getSelfieUrl() != null) {
@@ -76,8 +87,7 @@ public class TransporterFinalSubmissionServiceImpl
 
         String uploadedUrl = upload.get("secure_url").toString();
 
-        TransporterFinalSubmission entity =
-                new TransporterFinalSubmission();
+        TransporterFinalSubmission entity = new TransporterFinalSubmission();
 
         entity.setTransporterRegistrationId(regId);
         entity.setVerificationId(dto.getVerificationId());
