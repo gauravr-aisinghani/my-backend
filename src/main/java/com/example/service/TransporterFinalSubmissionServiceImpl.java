@@ -40,10 +40,13 @@ public class TransporterFinalSubmissionServiceImpl
             TransporterFinalSubmissionRequestDto dto
     ) throws Exception {
 
-        // ✅ Keep String (matches Entity + DB + JPA)
-        String regId = dto.getTransporterRegistrationId();
+        // 🔥 FIX: trim added
+        String regId = dto.getTransporterRegistrationId().trim();
 
-        // ✅ Check if GDC already generated
+        // Debug (temporary)
+        System.out.println("REG ID FROM API = [" + regId + "]");
+
+        // Already generated check
         boolean alreadyGenerated =
                 repo.existsByTransporterRegistrationIdAndCompletionStatus(
                         regId,
@@ -58,13 +61,13 @@ public class TransporterFinalSubmissionServiceImpl
             );
         }
 
-        // ✅ Generate GDC if not provided
+        // Generate GDC
         String gdc = dto.getGdcRegistrationNumber();
         if (gdc == null || gdc.isBlank()) {
             gdc = "GDC-T-" + String.format("%06d", repo.count() + 1);
         }
 
-        // ✅ Fetch transporter details
+        // Fetch transporter details
         Object[] row = repo.getFullTransporterProfileRaw(regId);
 
         if (row == null || row.length < 4) {
@@ -75,7 +78,6 @@ public class TransporterFinalSubmissionServiceImpl
             );
         }
 
-        // ✅ Safe conversion
         String companyName = row[0] != null ? row[0].toString() : "";
         String mobileNumber = row[1] != null ? row[1].toString() : "";
         String fullAddress = row[2] != null ? row[2].toString() : "";
@@ -114,7 +116,6 @@ public class TransporterFinalSubmissionServiceImpl
 
         String uploadedUrl = upload.get("secure_url").toString();
 
-        // ✅ Save final submission
         TransporterFinalSubmission entity = new TransporterFinalSubmission();
         entity.setTransporterRegistrationId(regId);
         entity.setVerificationId(dto.getVerificationId());

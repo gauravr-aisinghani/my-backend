@@ -15,13 +15,13 @@ public interface TransporterFinalSubmissionRepository
     Optional<TransporterFinalSubmission>
     findByGdcRegistrationNumber(String gdcRegistrationNumber);
 
-    // ✅ FIXED: String type (no Long)
+    // Already generated check (FINAL TABLE)
     boolean existsByTransporterRegistrationIdAndCompletionStatus(
             String transporterRegistrationId,
             String completionStatus
     );
 
-    // ✅ FIXED: Proper @Param binding for native query
+    // 🔥 FIX: TRIM added to handle hidden spaces / encoding issues
     @Query(value = """
         SELECT 
             d.transport_company_name,
@@ -31,7 +31,7 @@ public interface TransporterFinalSubmissionRepository
         FROM yfs_transporter_details d
         LEFT JOIN yfs_transporter_documents doc
           ON d.transporter_registration_id = doc.transporter_registration_id
-        WHERE d.transporter_registration_id = :regId
+        WHERE TRIM(d.transporter_registration_id) = TRIM(:regId)
         LIMIT 1
         """, nativeQuery = true)
     Object[] getFullTransporterProfileRaw(@Param("regId") String regId);
