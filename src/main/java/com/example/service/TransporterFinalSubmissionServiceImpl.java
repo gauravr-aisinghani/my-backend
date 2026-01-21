@@ -47,22 +47,24 @@ public class TransporterFinalSubmissionServiceImpl
             gdc = "GDC-T-" + String.format("%06d", repo.count() + 1);
         }
 
-        // ✅ UPDATED: native query result handling
+        // ✅ Native query result
         Object[] row = repo.getFullTransporterProfileRaw(regId);
 
-        FinalTransporterProfileDTO profile = null;
-
-        if (row != null && row.length == 4) {
-            profile = new FinalTransporterProfileDTO(
-                    (String) row[0],
-                    (String) row[1],
-                    (String) row[2],
-                    (String) row[3]
+        if (row == null) {
+            throw new RuntimeException(
+                "Transporter details not found for registrationId: " + regId
             );
         }
 
+        FinalTransporterProfileDTO profile = new FinalTransporterProfileDTO(
+                (String) row[0],  // company name
+                (String) row[1],  // mobile
+                (String) row[2],  // address
+                (String) row[3]   // selfie url
+        );
+
         BufferedImage selfie = null;
-        if (profile != null && profile.getSelfieUrl() != null) {
+        if (profile.getSelfieUrl() != null && !profile.getSelfieUrl().isBlank()) {
             selfie = ImageIO.read(new URL(profile.getSelfieUrl()));
         }
 
