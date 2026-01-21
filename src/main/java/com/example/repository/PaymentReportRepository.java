@@ -10,17 +10,45 @@ public interface PaymentReportRepository extends JpaRepository<Payment, Long> {
 
     /* ===== SUMMARY ===== */
 
-    @Query(value = "SELECT COUNT(*) FROM yfs_payments", nativeQuery = true)
-    Long countAll();
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM yfs_payments
+        WHERE (:paymentType IS NULL OR payment_type = :paymentType)
+          AND (:status IS NULL OR status = :status)
+          AND (:start IS NULL OR created_at >= :start)
+          AND (:end IS NULL OR created_at <= :end)
+    """, nativeQuery = true)
+    Long countAllFiltered(String paymentType, String status, String start, String end);
 
-    @Query(value = "SELECT IFNULL(SUM(amount),0) FROM yfs_payments", nativeQuery = true)
-    Double sumAllAmount();
+    @Query(value = """
+        SELECT IFNULL(SUM(amount),0)
+        FROM yfs_payments
+        WHERE (:paymentType IS NULL OR payment_type = :paymentType)
+          AND (:status IS NULL OR status = :status)
+          AND (:start IS NULL OR created_at >= :start)
+          AND (:end IS NULL OR created_at <= :end)
+    """, nativeQuery = true)
+    Double sumAmountFiltered(String paymentType, String status, String start, String end);
 
-    @Query(value = "SELECT COUNT(*) FROM yfs_payments WHERE status = ?1", nativeQuery = true)
-    Long countByStatus(String status);
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM yfs_payments
+        WHERE status = :status
+          AND (:paymentType IS NULL OR payment_type = :paymentType)
+          AND (:start IS NULL OR created_at >= :start)
+          AND (:end IS NULL OR created_at <= :end)
+    """, nativeQuery = true)
+    Long countByStatusFiltered(String status, String paymentType, String start, String end);
 
-    @Query(value = "SELECT COUNT(*) FROM yfs_payments WHERE payment_type = ?1", nativeQuery = true)
-    Long countByType(String type);
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM yfs_payments
+        WHERE payment_type = :type
+          AND (:status IS NULL OR status = :status)
+          AND (:start IS NULL OR created_at >= :start)
+          AND (:end IS NULL OR created_at <= :end)
+    """, nativeQuery = true)
+    Long countByTypeFiltered(String type, String status, String start, String end);
 
     /* ===== TABLE ===== */
 
@@ -36,7 +64,11 @@ public interface PaymentReportRepository extends JpaRepository<Payment, Long> {
         FROM yfs_payments
         WHERE (:paymentType IS NULL OR payment_type = :paymentType)
           AND (:status IS NULL OR status = :status)
+          AND (:start IS NULL OR created_at >= :start)
+          AND (:end IS NULL OR created_at <= :end)
         ORDER BY created_at DESC
     """, nativeQuery = true)
-    List<Object[]> fetchPayments(String paymentType, String status);
+    List<Object[]> fetchPayments(String paymentType, String status, String start, String end);
 }
+
+

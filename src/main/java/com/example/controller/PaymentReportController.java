@@ -17,8 +17,20 @@ public class PaymentReportController {
     @GetMapping
     public PaymentReportResponseDto getPaymentReport(
             @RequestParam(required = false) String paymentType,
-            @RequestParam(required = false) String status
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate
     ) {
-        return service.getPaymentReport(paymentType, status);
+        return service.getPaymentReport(
+                emptyToNull(paymentType),
+                emptyToNull(status),
+                emptyToNull(fromDate),
+                emptyToNull(toDate)
+        );
+    }
+
+    private String emptyToNull(String v) {
+        return (v == null || v.trim().isEmpty()) ? null : v;
     }
 }
+

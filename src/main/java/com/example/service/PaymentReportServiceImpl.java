@@ -17,22 +17,43 @@ public class PaymentReportServiceImpl implements PaymentReportService {
     }
 
     @Override
-    public PaymentReportResponseDto getPaymentReport(String paymentType, String status) {
+    public PaymentReportResponseDto getPaymentReport(
+            String paymentType,
+            String status,
+            String fromDate,
+            String toDate
+    ) {
+
+        String start = fromDate != null ? fromDate + " 00:00:00" : null;
+        String end   = toDate != null ? toDate + " 23:59:59" : null;
 
         // ===== SUMMARY =====
         PaymentSummaryDto summary = new PaymentSummaryDto();
-        summary.setTotalPayments(repository.countAll());
-        summary.setTotalAmount(repository.sumAllAmount());
-        summary.setPaidPayments(repository.countByStatus("PAID"));
-        summary.setFailedPayments(repository.countByStatus("FAILED"));
-        summary.setDriverPayments(repository.countByType("DRIVER"));
-        summary.setTransporterPayments(repository.countByType("TRANSPORTER"));
+
+        summary.setTotalPayments(
+                repository.countAllFiltered(paymentType, status, start, end)
+        );
+        summary.setTotalAmount(
+                repository.sumAmountFiltered(paymentType, status, start, end)
+        );
+        summary.setPaidPayments(
+                repository.countByStatusFiltered("PAID", paymentType, start, end)
+        );
+        summary.setFailedPayments(
+                repository.countByStatusFiltered("FAILED", paymentType, start, end)
+        );
+        summary.setDriverPayments(
+                repository.countByTypeFiltered("DRIVER", status, start, end)
+        );
+        summary.setTransporterPayments(
+                repository.countByTypeFiltered("TRANSPORTER", status, start, end)
+        );
 
         // ===== TABLE =====
-        List<PaymentReportRowDto> rows = new ArrayList<>();
-
         List<Object[]> data =
-                repository.fetchPayments(paymentType, status);
+                repository.fetchPayments(paymentType, status, start, end);
+
+        List<PaymentReportRowDto> rows = new ArrayList<>();
 
         for (Object[] r : data) {
             PaymentReportRowDto dto = new PaymentReportRowDto();
@@ -49,3 +70,5 @@ public class PaymentReportServiceImpl implements PaymentReportService {
         return new PaymentReportResponseDto(summary, rows);
     }
 }
+
+
