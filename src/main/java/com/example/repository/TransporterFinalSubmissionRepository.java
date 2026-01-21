@@ -1,9 +1,9 @@
 package com.example.repository;
 
-import com.example.dto.FinalTransporterProfileDTO;
 import com.example.entity.TransporterFinalSubmission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -15,21 +15,17 @@ public interface TransporterFinalSubmissionRepository
     Optional<TransporterFinalSubmission>
     findByGdcRegistrationNumber(String gdcRegistrationNumber);
 
-    @Query("""
-        SELECT new com.example.dto.FinalTransporterProfileDTO(
-            t.companyName,
-            t.mobileNumber,
-            CONCAT(
-                COALESCE(t.city,''), ', ',
-                COALESCE(t.state,''), ' - ',
-                COALESCE(t.pincode,'')
-            ),
-            d.selfieUrl
-        )
-        FROM TransporterDetails t
-        JOIN TransporterDocuments d
-          ON t.transporterRegistrationId = d.transporterRegistrationId
-        WHERE t.transporterRegistrationId = :regId
-    """)
-    FinalTransporterProfileDTO getFullTransporterProfile(String regId);
+    // ✅ Native SQL – table structure ke exact match ke saath
+    @Query(value = """
+        SELECT 
+          d.transport_company_name,
+          d.owner_mobile_number,
+          d.address,
+          doc.transporter_selfie_live_location_url
+        FROM yfs_transporter_details d
+        JOIN yfs_transporter_documents doc
+          ON d.transporter_registration_id = doc.transporter_registration_id
+        WHERE d.transporter_registration_id = :regId
+    """, nativeQuery = true)
+    Object[] getFullTransporterProfileRaw(@Param("regId") String regId);
 }
