@@ -15,7 +15,7 @@ public class TransporterFinalSubmission {
     @Column(name = "transporter_registration_id")
     private String transporterRegistrationId;
 
-    @Column(name = "verification_id", nullable = false)
+    @Column(name = "verification_id")
     private Long verificationId;
 
     @Column(name = "gdc_registration_number", unique = true)
@@ -45,138 +45,125 @@ public class TransporterFinalSubmission {
     @Column(name = "final_approved_at")
     private LocalDateTime finalApprovedAt;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", insertable = false, updatable = false)
     private LocalDateTime updatedAt;
 
-    // ===============================
-    // Lifecycle hooks
-    // ===============================
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
+    public TransporterFinalSubmission() {}
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+	public Long getFinalId() {
+		return finalId;
+	}
 
-    // ===============================
-    // Getters and Setters
-    // ===============================
-    public Long getFinalId() {
-        return finalId;
-    }
+	public void setFinalId(Long finalId) {
+		this.finalId = finalId;
+	}
 
-    public void setFinalId(Long finalId) {
-        this.finalId = finalId;
-    }
+	public String getTransporterRegistrationId() {
+		return transporterRegistrationId;
+	}
 
-    public String getTransporterRegistrationId() {
-        return transporterRegistrationId;
-    }
+	public void setTransporterRegistrationId(String transporterRegistrationId) {
+		this.transporterRegistrationId = transporterRegistrationId;
+	}
 
-    public void setTransporterRegistrationId(String transporterRegistrationId) {
-        this.transporterRegistrationId = transporterRegistrationId;
-    }
+	public Long getVerificationId() {
+		return verificationId;
+	}
 
-    public Long getVerificationId() {
-        return verificationId;
-    }
+	public void setVerificationId(Long verificationId) {
+		this.verificationId = verificationId;
+	}
 
-    public void setVerificationId(Long verificationId) {
-        this.verificationId = verificationId;
-    }
+	public String getGdcRegistrationNumber() {
+		return gdcRegistrationNumber;
+	}
 
-    public String getGdcRegistrationNumber() {
-        return gdcRegistrationNumber;
-    }
+	public void setGdcRegistrationNumber(String gdcRegistrationNumber) {
+		this.gdcRegistrationNumber = gdcRegistrationNumber;
+	}
 
-    public void setGdcRegistrationNumber(String gdcRegistrationNumber) {
-        this.gdcRegistrationNumber = gdcRegistrationNumber;
-    }
+	public String getIdCardUrl() {
+		return idCardUrl;
+	}
 
-    public String getIdCardUrl() {
-        return idCardUrl;
-    }
+	public void setIdCardUrl(String idCardUrl) {
+		this.idCardUrl = idCardUrl;
+	}
 
-    public void setIdCardUrl(String idCardUrl) {
-        this.idCardUrl = idCardUrl;
-    }
+	public String getCompletionStatus() {
+		return completionStatus;
+	}
 
-    public String getCompletionStatus() {
-        return completionStatus;
-    }
+	public void setCompletionStatus(String completionStatus) {
+		this.completionStatus = completionStatus;
+	}
 
-    public void setCompletionStatus(String completionStatus) {
-        this.completionStatus = completionStatus;
-    }
+	public String getFinalApprovedBy() {
+		return finalApprovedBy;
+	}
 
-    public String getFinalApprovedBy() {
-        return finalApprovedBy;
-    }
+	public void setFinalApprovedBy(String finalApprovedBy) {
+		this.finalApprovedBy = finalApprovedBy;
+	}
 
-    public void setFinalApprovedBy(String finalApprovedBy) {
-        this.finalApprovedBy = finalApprovedBy;
-    }
+	public String getRemarks() {
+		return remarks;
+	}
 
-    public String getRemarks() {
-        return remarks;
-    }
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
 
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
+	public String getTermsStatus() {
+		return termsStatus;
+	}
 
-    public String getTermsStatus() {
-        return termsStatus;
-    }
+	public void setTermsStatus(String termsStatus) {
+		this.termsStatus = termsStatus;
+	}
 
-    public void setTermsStatus(String termsStatus) {
-        this.termsStatus = termsStatus;
-    }
+	public Boolean getWhatsappSent() {
+		return whatsappSent;
+	}
 
-    public Boolean getWhatsappSent() {
-        return whatsappSent;
-    }
+	public void setWhatsappSent(Boolean whatsappSent) {
+		this.whatsappSent = whatsappSent;
+	}
 
-    public void setWhatsappSent(Boolean whatsappSent) {
-        this.whatsappSent = whatsappSent;
-    }
+	public LocalDateTime getWhatsappSentAt() {
+		return whatsappSentAt;
+	}
 
-    public LocalDateTime getWhatsappSentAt() {
-        return whatsappSentAt;
-    }
+	public void setWhatsappSentAt(LocalDateTime whatsappSentAt) {
+		this.whatsappSentAt = whatsappSentAt;
+	}
 
-    public void setWhatsappSentAt(LocalDateTime whatsappSentAt) {
-        this.whatsappSentAt = whatsappSentAt;
-    }
+	public LocalDateTime getFinalApprovedAt() {
+		return finalApprovedAt;
+	}
 
-    public LocalDateTime getFinalApprovedAt() {
-        return finalApprovedAt;
-    }
+	public void setFinalApprovedAt(LocalDateTime finalApprovedAt) {
+		this.finalApprovedAt = finalApprovedAt;
+	}
 
-    public void setFinalApprovedAt(LocalDateTime finalApprovedAt) {
-        this.finalApprovedAt = finalApprovedAt;
-    }
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+    
+    
 }
