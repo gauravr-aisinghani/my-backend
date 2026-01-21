@@ -42,21 +42,25 @@ public class TransporterFinalSubmissionServiceImpl
 
         String regId = dto.getTransporterRegistrationId();
 
+        // ✅ Generate GDC number if not provided
         String gdc = dto.getGdcRegistrationNumber();
         if (gdc == null || gdc.isBlank()) {
             gdc = "GDC-T-" + String.format("%06d", repo.count() + 1);
         }
 
-        // ✅ Native query result
+        // ✅ Fetch transporter details safely
         Object[] row = repo.getFullTransporterProfileRaw(regId);
 
         if (row == null || row.length < 4) {
-            throw new RuntimeException(
-                "Transporter details not found for registrationId: " + regId
+            // Return friendly message if details not found
+            return new TransporterFinalSubmissionResponseDto(
+                    null,
+                    null,
+                    "Transporter details not found for registrationId: " + regId
             );
         }
 
-        // ✅ Convert Object[] to String safely
+        // ✅ Safe Object[] -> String conversion
         String companyName = row[0] != null ? row[0].toString() : "";
         String mobileNumber = row[1] != null ? row[1].toString() : "";
         String fullAddress = row[2] != null ? row[2].toString() : "";
@@ -95,8 +99,8 @@ public class TransporterFinalSubmissionServiceImpl
 
         String uploadedUrl = upload.get("secure_url").toString();
 
+        // ✅ Save final submission
         TransporterFinalSubmission entity = new TransporterFinalSubmission();
-
         entity.setTransporterRegistrationId(regId);
         entity.setVerificationId(dto.getVerificationId());
         entity.setGdcRegistrationNumber(gdc);
