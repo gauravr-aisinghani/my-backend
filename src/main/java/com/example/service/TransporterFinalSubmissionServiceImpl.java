@@ -40,19 +40,34 @@ public class TransporterFinalSubmissionServiceImpl
             TransporterFinalSubmissionRequestDto dto
     ) throws Exception {
 
-        String regId = dto.getTransporterRegistrationId();
+        // ✅ FIX: String -> Long
+        Long regId = Long.parseLong(dto.getTransporterRegistrationId());
 
-        // ✅ Generate GDC number if not provided
+        // ✅ Already generated check
+        boolean alreadyGenerated =
+                repo.existsByTransporterRegistrationIdAndCompletionStatus(
+                        regId,
+                        "COMPLETED"
+                );
+
+        if (alreadyGenerated) {
+            return new TransporterFinalSubmissionResponseDto(
+                    null,
+                    null,
+                    "GDC already generated for this transporter"
+            );
+        }
+
+        // ✅ Generate GDC if not provided
         String gdc = dto.getGdcRegistrationNumber();
         if (gdc == null || gdc.isBlank()) {
             gdc = "GDC-T-" + String.format("%06d", repo.count() + 1);
         }
 
-        // ✅ Fetch transporter details safely
+        // ✅ Fetch transporter details
         Object[] row = repo.getFullTransporterProfileRaw(regId);
 
         if (row == null || row.length < 4) {
-            // Return friendly message if details not found
             return new TransporterFinalSubmissionResponseDto(
                     null,
                     null,
@@ -101,7 +116,7 @@ public class TransporterFinalSubmissionServiceImpl
 
         // ✅ Save final submission
         TransporterFinalSubmission entity = new TransporterFinalSubmission();
-        entity.setTransporterRegistrationId(regId);
+        entity.setTransporterRegistrationId(regId.toString());
         entity.setVerificationId(dto.getVerificationId());
         entity.setGdcRegistrationNumber(gdc);
         entity.setIdCardUrl(uploadedUrl);

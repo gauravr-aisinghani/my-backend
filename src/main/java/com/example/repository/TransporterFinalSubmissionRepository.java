@@ -14,7 +14,13 @@ public interface TransporterFinalSubmissionRepository
     Optional<TransporterFinalSubmission>
     findByGdcRegistrationNumber(String gdcRegistrationNumber);
 
-    // ✅ Native query returns Object[]
+    // ✅ NEW: Check if GDC already generated
+    boolean existsByTransporterRegistrationIdAndCompletionStatus(
+            Long transporterRegistrationId,
+            String completionStatus
+    );
+
+    // ✅ FIXED: regId type changed to Long
     @Query(value = """
         SELECT 
             d.transport_company_name,
@@ -26,5 +32,5 @@ public interface TransporterFinalSubmissionRepository
           ON d.transporter_registration_id = doc.transporter_registration_id
         WHERE d.transporter_registration_id = :regId
         """, nativeQuery = true)
-    Object[] getFullTransporterProfileRaw(String regId);
+    Object[] getFullTransporterProfileRaw(Long regId);
 }
