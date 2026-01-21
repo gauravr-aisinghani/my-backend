@@ -40,10 +40,10 @@ public class TransporterFinalSubmissionServiceImpl
             TransporterFinalSubmissionRequestDto dto
     ) throws Exception {
 
-        // ✅ FIX: String -> Long
-        Long regId = Long.parseLong(dto.getTransporterRegistrationId());
+        // ✅ Keep String (matches Entity + DB + JPA)
+        String regId = dto.getTransporterRegistrationId();
 
-        // ✅ Already generated check
+        // ✅ Check if GDC already generated
         boolean alreadyGenerated =
                 repo.existsByTransporterRegistrationIdAndCompletionStatus(
                         regId,
@@ -75,7 +75,7 @@ public class TransporterFinalSubmissionServiceImpl
             );
         }
 
-        // ✅ Safe Object[] -> String conversion
+        // ✅ Safe conversion
         String companyName = row[0] != null ? row[0].toString() : "";
         String mobileNumber = row[1] != null ? row[1].toString() : "";
         String fullAddress = row[2] != null ? row[2].toString() : "";
@@ -89,8 +89,8 @@ public class TransporterFinalSubmissionServiceImpl
         );
 
         BufferedImage selfie = null;
-        if (profile.getSelfieUrl() != null && !profile.getSelfieUrl().isBlank()) {
-            selfie = ImageIO.read(new URL(profile.getSelfieUrl()));
+        if (selfieUrl != null && !selfieUrl.isBlank()) {
+            selfie = ImageIO.read(new URL(selfieUrl));
         }
 
         byte[] cardBytes = IdCardGenerator.generateFancyCardBytes(
@@ -116,7 +116,7 @@ public class TransporterFinalSubmissionServiceImpl
 
         // ✅ Save final submission
         TransporterFinalSubmission entity = new TransporterFinalSubmission();
-        entity.setTransporterRegistrationId(regId.toString());
+        entity.setTransporterRegistrationId(regId);
         entity.setVerificationId(dto.getVerificationId());
         entity.setGdcRegistrationNumber(gdc);
         entity.setIdCardUrl(uploadedUrl);
