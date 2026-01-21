@@ -19,11 +19,16 @@ public interface TransporterVerificationRepository extends JpaRepository<Transpo
             "td.owner_name AS ownerName, " +
             "td.owner_mobile_number AS ownerMobile, " +
             "tv.updated_at AS verifiedAt, " +
-            "tv.verification_id AS verificationId " +  // ✅ add this line
+            "tv.verification_id AS verificationId, " +
+            "tfs.completion_status AS completionStatus " +  // ✅ include completion status
             "FROM yfs_transporter_verification tv " +
             "JOIN yfs_transporter_details td " +
             "ON tv.transporter_registration_id = td.transporter_registration_id " +
-            "WHERE tv.final_status = 'APPROVED'", nativeQuery = true)
+            "LEFT JOIN yfs_transporter_final_submission tfs " +
+            "ON tv.transporter_registration_id = tfs.transporter_registration_id " +
+            "AND tv.verification_id = tfs.verification_id " +
+            "WHERE tv.final_status = 'APPROVED' " +
+            "AND (tfs.completion_status IS NULL OR tfs.completion_status <> 'COMPLETED')", 
+            nativeQuery = true)
     List<Map<String, Object>> findApprovedTransporters();
-
 }
