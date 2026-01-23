@@ -10,5 +10,10 @@ public interface YfsTransporterDetailsRepository
 
     boolean existsByGstNumber(String gstNumber);
 
-    Optional<YfsTransporterDetails> findByTransporterRegistrationId(String transporterRegistrationId);
+    Optional<YfsTransporterDetails>
+    findByTransporterRegistrationId(String transporterRegistrationId);
+
+    // 🔥 REQUIRED FOR LOGIN
+    Optional<YfsTransporterDetails>
+    findByOwnerMobileNumber(String ownerMobileNumber);
 }

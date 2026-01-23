@@ -22,6 +22,10 @@ public interface TransporterFinalSubmissionRepository
             String completionStatus
     );
 
+    // 🔥 REQUIRED FOR LOGIN (ADDED – SAFE)
+    Optional<TransporterFinalSubmission>
+    findByTransporterRegistrationId(String transporterRegistrationId);
+
     // ✅ MAP BASED RESULT (NO ARRAY ISSUE)
     @Query(value = """
         SELECT 
@@ -35,5 +39,6 @@ public interface TransporterFinalSubmissionRepository
         WHERE d.transporter_registration_id = :regId
         LIMIT 1
         """, nativeQuery = true)
-    List<Map<String, Object>> getFullTransporterProfileRaw(@Param("regId") String regId);
+    List<Map<String, Object>> getFullTransporterProfileRaw(
+            @Param("regId") String regId);
 }

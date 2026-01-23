@@ -11,9 +11,14 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface DriverFinalSubmissionRepository extends JpaRepository<DriverFinalSubmission, Long> {
+public interface DriverFinalSubmissionRepository
+        extends JpaRepository<DriverFinalSubmission, Long> {
 
     boolean existsByVerificationId(Long verificationId);
+
+    // 🔥 REQUIRED FOR LOGIN (ADDED – SAFE)
+    Optional<DriverFinalSubmission>
+    findByDriverRegistrationId(Long driverRegistrationId);
 
     // ✅ Fetch Name, Mobile, Address & Selfie
     @Query("""
@@ -36,6 +41,7 @@ public interface DriverFinalSubmissionRepository extends JpaRepository<DriverFin
     """)
     FinalDriverProfileDTO getFullDriverProfile(Long regId);
 
-    // ✅ New method: find driver by GDC registration number
-    Optional<DriverFinalSubmission> findByGdcRegistrationNumber(String gdcRegistrationNumber);
+    // ✅ find driver by GDC registration number
+    Optional<DriverFinalSubmission>
+    findByGdcRegistrationNumber(String gdcRegistrationNumber);
 }
