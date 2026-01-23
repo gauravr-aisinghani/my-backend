@@ -12,14 +12,14 @@ import com.example.dto.LoginResponseDto;
 import com.example.service.AuthService;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/generalauth")
 @CrossOrigin
 public class LoginController {
 
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/login")
+    @PostMapping("/generallogin")
     public ResponseEntity<LoginResponseDto> login(
             @RequestBody LoginRequestDto request) {
 

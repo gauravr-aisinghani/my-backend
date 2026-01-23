@@ -58,6 +58,8 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/generalauth/**").permitAll()
+
                 .requestMatchers("/api/client/**").permitAll()
                 .requestMatchers("/api/visitor-driver/**").permitAll()
                 .requestMatchers("/api/selected-driver/**").permitAll()
