@@ -72,8 +72,15 @@ public class AuthServiceImpl implements AuthService {
             return new LoginResponseDto(false, "Transporter not approved yet");
         }
 
-        return new LoginResponseDto(true, "Transporter login successful");
+        // 🔥 WebSocket ready
+        return new LoginResponseDto(
+                true,
+                "Transporter login successful",
+                "TRANSPORTER",
+                mobile
+        );
     }
+
 
     // ================= DRIVER LOGIN =================
     private LoginResponseDto driverLogin(String mobile) {

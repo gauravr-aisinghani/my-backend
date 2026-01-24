@@ -76,6 +76,7 @@
 package com.example.controller;
 
 import com.example.dto.ApiResponse;
+
 import com.example.dto.LoginRequest;
 import com.example.entity.Client;
 import com.example.repository.ClientRepository;
@@ -139,7 +140,13 @@ public class AuthController {
 
         session.setMaxInactiveInterval(SESSION_TIMEOUT_SECONDS);
 
-        return ResponseEntity.ok(new ApiResponse(true, "Login successful"));
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Login successful",
+                "role", c.getRole(),      // ADMIN
+                "userId", c.getId()       // admin unique id
+        ));
+
     }
 
     // -------------------------------------------
