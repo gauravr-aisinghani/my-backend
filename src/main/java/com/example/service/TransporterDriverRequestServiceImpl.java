@@ -56,6 +56,40 @@ public class TransporterDriverRequestServiceImpl implements TransporterDriverReq
     public List<TransporterDriverRequest> getAllRequests() {
         return repository.findAll();
     }
+    
+    
+    @Override
+    public TransporterDriverRequest acceptDriverRequest(Long requestId) throws Exception {
+
+        TransporterDriverRequest request = repository.findById(requestId)
+                .orElseThrow(() -> new Exception("Driver request not found"));
+
+        // ❌ already processed check
+        if (request.getStatus() != TransporterDriverRequest.Status.PENDING) {
+            throw new Exception("Request already processed");
+        }
+
+        // 🔢 BACKEND CALCULATION (20%)
+        double salary = request.getMonthlySalary();
+        double advanceAmount = salary * 0.20;
+
+        // ✅ Update status
+        request.setStatus(TransporterDriverRequest.Status.APPROVED);
+        request.setUpdatedAt(java.time.LocalDateTime.now());
+
+        TransporterDriverRequest saved = repository.save(request);
+
+        // 🔔 TRANSPORTER NOTIFICATION (DB + WebSocket)
+        notificationService.notifyTransporter(
+                request.getTransporterPhone(),
+                "Driver Request Accepted",
+                "Your driver request has been approved. Please pay 20% advance ₹"
+                        + advanceAmount
+        );
+
+        return saved;
+    }
+
 
     @Override
     public TransporterDriverRequest getRequestById(Long requestId) throws Exception {

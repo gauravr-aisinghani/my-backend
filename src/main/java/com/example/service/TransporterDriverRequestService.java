@@ -24,4 +24,7 @@ public interface TransporterDriverRequestService {
      * Fetch request by ID
      */
     TransporterDriverRequest getRequestById(Long requestId) throws Exception;
+    
+    TransporterDriverRequest acceptDriverRequest(Long requestId) throws Exception;
+
 }
