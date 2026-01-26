@@ -78,6 +78,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/transporter-documents").permitAll()
                 .requestMatchers("/api/transporter-verification/**").permitAll()
                 .requestMatchers("/api/transporter-verification").permitAll()
+                .requestMatchers("/api/driver-request/create").permitAll()
+                .requestMatchers("/api/driver-request/create/**").permitAll()
+
+
                 .requestMatchers("/api//api/transporter-gdc/generate").permitAll()
                 .requestMatchers("/api//api/transporter-gdc/generate/**").permitAll()
 
