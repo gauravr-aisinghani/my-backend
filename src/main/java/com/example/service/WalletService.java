@@ -29,7 +29,7 @@ public class WalletService {
         Wallet wallet = walletRepo.findByGdc(req.getGdcNumber(), req.getUserType())
                 .orElseGet(() -> createWallet(req.getGdcNumber(), req.getUserType()));
 
-        Double opening = wallet.getBalance();
+        Double opening = wallet.getBalance() != null ? wallet.getBalance() : 0.0;
         Double closing = opening + req.getAmount();
 
         wallet.setBalance(closing);
@@ -41,9 +41,14 @@ public class WalletService {
         txn.setOpeningBalance(opening);
         txn.setClosingBalance(closing);
         txn.setTxnType("CREDIT");
-        txn.setPurpose(req.getPurpose().name());
-        txn.setDescription("Wallet topup");
 
+        // ✅ Use enum directly
+        WalletTransactionPurpose purpose = req.getPurpose() != null
+                ? req.getPurpose()
+                : WalletTransactionPurpose.MANUAL_TOPUP;
+        txn.setPurpose(purpose);
+
+        txn.setDescription("Wallet topup");
         txnRepo.save(txn);
 
         WalletResponseDto res = new WalletResponseDto();
@@ -59,27 +64,26 @@ public class WalletService {
     // =========================
     @Transactional
     public void credit(Payment payment){
-        // 1️⃣ Find wallet for Payment user
         Wallet wallet = walletRepo.findByGdc(payment.getGdcNumber(), payment.getPaymentType())
                 .orElseGet(() -> createWallet(payment.getGdcNumber(), payment.getPaymentType()));
 
-        // 2️⃣ Calculate balances
         Double opening = wallet.getBalance() != null ? wallet.getBalance() : 0.0;
         Double closing = opening + payment.getAmount();
 
-        // 3️⃣ Update wallet
         wallet.setBalance(closing);
         walletRepo.save(wallet);
 
-        // 4️⃣ Create WalletTransaction
+        // ✅ Map PaymentPurpose → WalletTransactionPurpose
+        WalletTransactionPurpose purpose = mapPaymentPurpose(payment.getPurpose());
+
         WalletTransaction txn = new WalletTransaction();
         txn.setWallet(wallet);
         txn.setAmount(payment.getAmount());
         txn.setOpeningBalance(opening);
         txn.setClosingBalance(closing);
         txn.setTxnType("CREDIT");
-        txn.setPurpose(payment.getPurpose() != null ? payment.getPurpose().name() : "TOPUP");
-        txn.setDescription("Payment credited from Razorpay");
+        txn.setPurpose(purpose);
+        txn.setDescription("Payment credited");
 
         txnRepo.save(txn);
     }
@@ -105,7 +109,7 @@ public class WalletService {
         Wallet wallet = walletRepo.findByGdc(gdc,type)
                 .orElseThrow(() -> new RuntimeException("Wallet not found"));
 
-        return txnRepo.findAll().stream() // 🔴 filter by wallet in real app use query
+        return txnRepo.findAll().stream()
                 .filter(t -> t.getWallet().getId().equals(wallet.getId()))
                 .map(t -> {
                     WalletTransactionResponseDto dto = new WalletTransactionResponseDto();
@@ -114,7 +118,10 @@ public class WalletService {
                     dto.setOpeningBalance(t.getOpeningBalance());
                     dto.setClosingBalance(t.getClosingBalance());
                     dto.setTxnType(t.getTxnType());
-                    dto.setPurpose(t.getPurpose());
+
+                    // ✅ Convert enum to String for frontend
+                    dto.setPurpose(t.getPurpose().name());
+
                     dto.setDescription(t.getDescription());
                     return dto;
                 }).collect(Collectors.toList());
@@ -129,6 +136,31 @@ public class WalletService {
         w.setUserType(type);
         w.setBalance(0.0);
         return walletRepo.save(w);
+    }
+
+    // =========================
+    // 6️⃣ Helper to map PaymentPurpose → WalletTransactionPurpose
+    // =========================
+    private WalletTransactionPurpose mapPaymentPurpose(PaymentPurpose paymentPurpose) {
+        if(paymentPurpose == null) return WalletTransactionPurpose.MANUAL_TOPUP;
+
+        switch(paymentPurpose) {
+            case DRIVER_REGISTRATION:
+            case TRANSPORTER_REGISTRATION:
+                return WalletTransactionPurpose.REGISTRATION;
+
+            case TRANSPORTER_ADVANCE:
+                return WalletTransactionPurpose.TRANSPORTER_ADVANCE;
+
+            case MONTHLY_SETTLEMENT:
+                return WalletTransactionPurpose.TRANSPORTER_MONTHLY_SETTLEMENT;
+
+            case DRIVER_TOPUP:
+            case MANUAL_TOPUP:
+            case DRIVER_ADVANCE: // optional
+            default:
+                return WalletTransactionPurpose.MANUAL_TOPUP;
+        }
     }
 
 }

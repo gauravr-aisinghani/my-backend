@@ -1,13 +1,14 @@
 package com.example.dto;
 
 import com.example.entity.PaymentType;
+import com.example.entity.WalletTransactionPurpose;
 import com.example.entity.PaymentPurpose;
 
 public class WalletRequestDto {
 
     private String gdcNumber;
     private PaymentType userType;
-    private PaymentPurpose purpose;
+    private WalletTransactionPurpose purpose;
     private Double amount; // for topup/advance
 	public String getGdcNumber() {
 		return gdcNumber;
@@ -21,10 +22,10 @@ public class WalletRequestDto {
 	public void setUserType(PaymentType userType) {
 		this.userType = userType;
 	}
-	public PaymentPurpose getPurpose() {
+	public WalletTransactionPurpose getPurpose() {
 		return purpose;
 	}
-	public void setPurpose(PaymentPurpose purpose) {
+	public void setPurpose(WalletTransactionPurpose purpose) {
 		this.purpose = purpose;
 	}
 	public Double getAmount() {
