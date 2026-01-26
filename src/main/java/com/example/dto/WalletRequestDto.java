@@ -1,52 +1,40 @@
 package com.example.dto;
 
-import com.example.entity.PaymentPurpose;
 import com.example.entity.PaymentType;
+import com.example.entity.PaymentPurpose;
 
-public class CreatePaymentRequest {
+public class WalletRequestDto {
 
     private String gdcNumber;
-    private PaymentType type;
-
-    // 🔴 ADD
+    private PaymentType userType;
     private PaymentPurpose purpose;
-
-    // 🔴 ADD (only used for TOPUP / ADVANCE)
-    private Double amount;
-
+    private Double amount; // for topup/advance
 	public String getGdcNumber() {
 		return gdcNumber;
 	}
-
 	public void setGdcNumber(String gdcNumber) {
 		this.gdcNumber = gdcNumber;
 	}
-
-	public PaymentType getType() {
-		return type;
+	public PaymentType getUserType() {
+		return userType;
 	}
-
-	public void setType(PaymentType type) {
-		this.type = type;
+	public void setUserType(PaymentType userType) {
+		this.userType = userType;
 	}
-
 	public PaymentPurpose getPurpose() {
 		return purpose;
 	}
-
 	public void setPurpose(PaymentPurpose purpose) {
 		this.purpose = purpose;
 	}
-
 	public Double getAmount() {
 		return amount;
 	}
-
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
 
-    // getters setters generate yourself
+    // 🔴 GENERATE getters & setters
+    
     
 }
-

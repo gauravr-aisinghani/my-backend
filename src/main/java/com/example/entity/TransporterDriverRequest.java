@@ -24,6 +24,15 @@ public class TransporterDriverRequest {
     private String vehicleNumber;
 
     private String route;
+    
+    @Column(name="advance_paid")
+    private Boolean advancePaid = false;
+
+    @Column(name="settlement_paid")
+    private Boolean settlementPaid = false;
+
+    // getters setters
+
 
     private Double monthlySalary;
 
@@ -154,7 +163,25 @@ public class TransporterDriverRequest {
 		this.updatedAt = updatedAt;
 	}
 
+	public Boolean getAdvancePaid() {
+		return advancePaid;
+	}
+
+	public void setAdvancePaid(Boolean advancePaid) {
+		this.advancePaid = advancePaid;
+	}
+
+	public Boolean getSettlementPaid() {
+		return settlementPaid;
+	}
+
+	public void setSettlementPaid(Boolean settlementPaid) {
+		this.settlementPaid = settlementPaid;
+	}
+
     // getters & setters tu generate kar lega
+	
+	
     
     
 }

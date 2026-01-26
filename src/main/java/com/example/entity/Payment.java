@@ -1,14 +1,15 @@
 package com.example.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(
-    name = "yfs_payments",
-    uniqueConstraints = @UniqueConstraint(
-        columnNames = {"gdc_number", "payment_type"}
-    )
+    name = "yfs_payments"
+//    uniqueConstraints = @UniqueConstraint(
+//        columnNames = {"gdc_number", "payment_type"}
+//    )
 )
 public class Payment {
 
@@ -18,6 +19,11 @@ public class Payment {
 
     @Column(name = "gdc_number", nullable = false)
     private String gdcNumber;
+    
+ // 🔴 ADD
+    @Enumerated(EnumType.STRING)
+    private PaymentPurpose purpose;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_type", nullable = false)
@@ -135,6 +141,15 @@ public class Payment {
 		this.updatedAt = updatedAt;
 	}
 
+	public PaymentPurpose getPurpose() {
+		return purpose;
+	}
+
+	public void setPurpose(PaymentPurpose purpose) {
+		this.purpose = purpose;
+	}
+
     // getters & setters
+	
     
 }

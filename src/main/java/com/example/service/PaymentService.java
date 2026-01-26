@@ -20,201 +20,206 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentService {
 
-    private final RazorpayClient razorpayClient;
-    private final PaymentRepository paymentRepo;
-    private final PaymentTransactionRepository txnRepo;
-    private final DriverFinalSubmissionRepository driverRepo;
-    private final TransporterFinalSubmissionRepository transporterRepo;
+private final RazorpayClient razorpayClient;
+private final PaymentRepository paymentRepo;
+private final PaymentTransactionRepository txnRepo;
+private final DriverFinalSubmissionRepository driverRepo;
+private final TransporterFinalSubmissionRepository transporterRepo;
+private final WalletService walletService;
+private final TransporterSettlementService settlementService;
 
-    @Value("${razorpay.key-id}")
-    private String razorpayKeyId;
+@Value("${razorpay.key-id}")
+private String razorpayKeyId;
 
-    
-    @Value("${razorpay.key-secret}")
-    private String razorpayKeySecret;
- 
-    public PaymentService(
-            RazorpayClient razorpayClient,
-            PaymentRepository paymentRepo,
-            PaymentTransactionRepository txnRepo,
-            DriverFinalSubmissionRepository driverRepo,
-            TransporterFinalSubmissionRepository transporterRepo
-    ) {
-        this.razorpayClient = razorpayClient;
-        this.paymentRepo = paymentRepo;
-        this.txnRepo = txnRepo;
-        this.driverRepo = driverRepo;
-        this.transporterRepo = transporterRepo;
-    }
+@Value("${razorpay.key-secret}")
+private String razorpayKeySecret;
 
-    public CreatePaymentResponse createOrder(CreatePaymentRequest req) {
+public PaymentService(
+RazorpayClient razorpayClient,
+PaymentRepository paymentRepo,
+PaymentTransactionRepository txnRepo,
+DriverFinalSubmissionRepository driverRepo,
+TransporterFinalSubmissionRepository transporterRepo,
+WalletService walletService,
+TransporterSettlementService settlementService
+){
+this.razorpayClient = razorpayClient;
+this.paymentRepo = paymentRepo;
+this.txnRepo = txnRepo;
+this.driverRepo = driverRepo;
+this.transporterRepo = transporterRepo;
+this.walletService = walletService;
+this.settlementService = settlementService;
+}
 
-        // ===============================
-        // 1️⃣ VALIDATE BASED ON TYPE
-        // ===============================
-        if (req.getType() == PaymentType.DRIVER) {
+public CreatePaymentResponse createOrder(CreatePaymentRequest req){
 
-            DriverFinalSubmission driver =
-                    driverRepo.findByGdcRegistrationNumber(req.getGdcNumber())
-                            .orElseThrow(() ->
-                                    new RuntimeException("Invalid DRIVER GDC number"));
+// ================= VALIDATION =================
 
-            if (!"COMPLETED".equalsIgnoreCase(driver.getCompletionStatus())) {
-                throw new RuntimeException("Driver is not fully approved");
-            }
+if(req.getType()==PaymentType.DRIVER){
 
-        } else if (req.getType() == PaymentType.TRANSPORTER) {
+driverRepo.findByGdcRegistrationNumber(req.getGdcNumber())
+.orElseThrow(() -> new RuntimeException("Invalid Driver"));
 
-            TransporterFinalSubmission transporter =
-                    transporterRepo.findByGdcRegistrationNumber(req.getGdcNumber())
-                            .orElseThrow(() ->
-                                    new RuntimeException("Invalid TRANSPORTER GDC number"));
+}
 
-            if (!"COMPLETED".equalsIgnoreCase(transporter.getCompletionStatus())) {
-                throw new RuntimeException("Transporter is not fully approved");
-            }
-        }
+if(req.getType()==PaymentType.TRANSPORTER){
 
-        // ===============================
-        // 2️⃣ PREVENT DUPLICATE PAYMENT
-        // ===============================
-        paymentRepo.findByGdcNumberAndPaymentType(
-                req.getGdcNumber(),
-                req.getType()
-        ).ifPresent(existing -> {
-            if (existing.getStatus() == PaymentStatus.CREATED ||
-                existing.getStatus() == PaymentStatus.PAID) {
-                throw new RuntimeException("Payment already initiated for this GDC");
-            }
-        });
+transporterRepo.findByGdcRegistrationNumber(req.getGdcNumber())
+.orElseThrow(() -> new RuntimeException("Invalid Transporter"));
 
-        // ===============================
-        // 3️⃣ AMOUNT (BACKEND CONTROL)
-        // ===============================
-        int amount = getAmountForType(req.getType());
+}
 
-        try {
-            // ===============================
-            // 4️⃣ CREATE RAZORPAY ORDER
-            // ===============================
-            JSONObject options = new JSONObject();
-            options.put("amount", amount * 100);
-            options.put("currency", "INR");
-            options.put("receipt", "rcpt_" + System.currentTimeMillis());
+// ================= AMOUNT =================
 
-            Order order = razorpayClient.orders.create(options);
+Double amount = resolveAmount(req);
 
-            // ===============================
-            // 5️⃣ SAVE PAYMENT
-            // ===============================
-            Payment payment = new Payment();
-            payment.setGdcNumber(req.getGdcNumber());
-            payment.setPaymentType(req.getType());
-            payment.setAmount((double) amount);
-            payment.setCurrency("INR");
-            payment.setRazorpayOrderId(order.get("id"));
-            payment.setStatus(PaymentStatus.CREATED);
-            paymentRepo.save(payment);
+try{
 
-            // ===============================
-            // 6️⃣ SAVE TRANSACTION
-            // ===============================
-            PaymentTransaction txn = new PaymentTransaction();
-            txn.setPayment(payment);
-            txn.setEventType(PaymentEventType.ORDER_CREATED);
-            txn.setRazorpayOrderId(order.get("id"));
-            txn.setAmount(payment.getAmount());
-            txn.setCurrency("INR");
-            txnRepo.save(txn);
+JSONObject options = new JSONObject();
+options.put("amount", amount * 100);
+options.put("currency","INR");
+options.put("receipt","rcpt_"+System.currentTimeMillis());
 
-            // ===============================
-            // 7️⃣ RESPONSE
-            // ===============================
-            CreatePaymentResponse res = new CreatePaymentResponse();
-            res.setOrderId(order.get("id"));
-            res.setAmount(amount * 100);
-            res.setCurrency("INR");
-            res.setKey(razorpayKeyId);
+Order order = razorpayClient.orders.create(options);
 
-            return res;
+Payment payment = new Payment();
+payment.setGdcNumber(req.getGdcNumber());
+payment.setPaymentType(req.getType());
+payment.setPurpose(req.getPurpose());
+payment.setAmount(amount);
+payment.setCurrency("INR");
+payment.setRazorpayOrderId(order.get("id"));
+payment.setStatus(PaymentStatus.CREATED);
 
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create Razorpay order", e);
-        }
-    }
-
-    private int getAmountForType(PaymentType type) {
-        if (type == PaymentType.DRIVER) {
-            return 865;
-        }
-        if (type == PaymentType.TRANSPORTER) {
-            return 1865;
-        }
-        throw new RuntimeException("Invalid payment type");
-    }
-    
-    
-    public VerifyPaymentResponse verifyPayment(VerifyPaymentRequest req) {
-
-        Payment payment = paymentRepo
-                .findByRazorpayOrderId(req.getRazorpayOrderId())
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
-
-        String data = req.getRazorpayOrderId() + "|" + req.getRazorpayPaymentId();
-
-        String generatedSignature = generateSignature(data, razorpayKeySecret);
-
-        if (!generatedSignature.equals(req.getRazorpaySignature())) {
-
-            payment.setStatus(PaymentStatus.FAILED);
-            paymentRepo.save(payment);
-
-            saveTransaction(payment, req, PaymentEventType.PAYMENT_FAILED);
-
-            return new VerifyPaymentResponse("FAILED", "Invalid payment signature");
-        }
-
-        // ✅ SUCCESS
-        payment.setRazorpayPaymentId(req.getRazorpayPaymentId());
-        payment.setRazorpaySignature(req.getRazorpaySignature());
-        payment.setStatus(PaymentStatus.PAID);
-        paymentRepo.save(payment);
-
-        saveTransaction(payment, req, PaymentEventType.PAYMENT_SUCCESS);
-
-        return new VerifyPaymentResponse("SUCCESS", "Payment verified successfully");
-    }
-    
-    
-    private String generateSignature(String data, String secret) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKey =
-                    new SecretKeySpec(secret.getBytes(), "HmacSHA256");
-            mac.init(secretKey);
-            byte[] rawHmac = mac.doFinal(data.getBytes());
-            return Hex.encodeHexString(rawHmac);
-        } catch (Exception e) {
-            throw new RuntimeException("Signature verification failed", e);
-        }
-    }
-
-    
-    private void saveTransaction(Payment payment,
-            VerifyPaymentRequest req,
-            PaymentEventType eventType) {
+paymentRepo.save(payment);
 
 PaymentTransaction txn = new PaymentTransaction();
 txn.setPayment(payment);
-txn.setRazorpayOrderId(req.getRazorpayOrderId());
-txn.setRazorpayPaymentId(req.getRazorpayPaymentId());
-txn.setRazorpaySignature(req.getRazorpaySignature());
-txn.setEventType(eventType);
-txn.setAmount(payment.getAmount());
-txn.setCurrency(payment.getCurrency());
+txn.setEventType(PaymentEventType.ORDER_CREATED);
+txn.setRazorpayOrderId(order.get("id"));
+txn.setAmount(amount);
+txn.setCurrency("INR");
 
 txnRepo.save(txn);
+
+CreatePaymentResponse res = new CreatePaymentResponse();
+res.setOrderId(order.get("id"));
+res.setAmount((int)(amount*100));
+res.setCurrency("INR");
+res.setKey(razorpayKeyId);
+
+return res;
+
+}catch(Exception e){
+throw new RuntimeException("Order failed",e);
+}
 }
 
+// ================= AMOUNT RESOLVER =================
+
+private Double resolveAmount(CreatePaymentRequest req){
+
+switch(req.getPurpose()){
+
+case DRIVER_REGISTRATION:
+return 865.0;
+
+case TRANSPORTER_REGISTRATION:
+return 1865.0;
+
+case TRANSPORTER_ADVANCE:
+return settlementService.calculateAdvance(req.getGdcNumber());
+
+case MONTHLY_SETTLEMENT:
+return settlementService.calculateMonthlySettlement(req.getGdcNumber());
+
+case DRIVER_TOPUP:
+case MANUAL_TOPUP:
+return req.getAmount();
+
+default:
+throw new RuntimeException("Invalid purpose");
+}
+
+}
+
+// ================= VERIFY =================
+
+public VerifyPaymentResponse verifyPayment(VerifyPaymentRequest req){
+
+Payment payment = paymentRepo.findByRazorpayOrderId(req.getRazorpayOrderId())
+.orElseThrow(() -> new RuntimeException("Payment not found"));
+
+String data = req.getRazorpayOrderId()+"|"+req.getRazorpayPaymentId();
+
+String generated = generateSignature(data, razorpayKeySecret);
+
+if(!generated.equals(req.getRazorpaySignature())){
+
+payment.setStatus(PaymentStatus.FAILED);
+paymentRepo.save(payment);
+
+saveTxn(payment,req,PaymentEventType.PAYMENT_FAILED);
+
+return new VerifyPaymentResponse("FAILED","Signature mismatch");
+}
+
+// ================= SUCCESS =================
+
+payment.setRazorpayPaymentId(req.getRazorpayPaymentId());
+payment.setRazorpaySignature(req.getRazorpaySignature());
+payment.setStatus(PaymentStatus.PAID);
+paymentRepo.save(payment);
+
+saveTxn(payment,req,PaymentEventType.PAYMENT_SUCCESS);
+
+// ===== MARK BUSINESS FLAGS =====
+
+if(payment.getPurpose()==PaymentPurpose.TRANSPORTER_ADVANCE){
+settlementService.markAdvancePaid(payment.getGdcNumber());
+}
+
+if(payment.getPurpose()==PaymentPurpose.MONTHLY_SETTLEMENT){
+settlementService.markSettlementPaid(payment.getGdcNumber());
+}
+
+// ===== CREDIT WALLET (NOT REGISTRATION) =====
+
+if(payment.getPurpose()!=PaymentPurpose.DRIVER_REGISTRATION &&
+payment.getPurpose()!=PaymentPurpose.TRANSPORTER_REGISTRATION){
+
+walletService.credit(payment);
+}
+
+// TODO ADMIN LEDGER + PAYOUT MODULE (SKIPPED)
+
+return new VerifyPaymentResponse("SUCCESS","Payment success");
+}
+
+private void saveTxn(Payment p,VerifyPaymentRequest r,PaymentEventType e){
+
+PaymentTransaction t = new PaymentTransaction();
+t.setPayment(p);
+t.setRazorpayOrderId(r.getRazorpayOrderId());
+t.setRazorpayPaymentId(r.getRazorpayPaymentId());
+t.setRazorpaySignature(r.getRazorpaySignature());
+t.setEventType(e);
+t.setAmount(p.getAmount());
+t.setCurrency(p.getCurrency());
+
+txnRepo.save(t);
+}
+
+private String generateSignature(String data,String secret){
+
+try{
+Mac mac = Mac.getInstance("HmacSHA256");
+mac.init(new SecretKeySpec(secret.getBytes(),"HmacSHA256"));
+return Hex.encodeHexString(mac.doFinal(data.getBytes()));
+}catch(Exception e){
+throw new RuntimeException(e);
+}
+}
 
 }
