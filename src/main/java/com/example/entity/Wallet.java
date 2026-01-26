@@ -4,27 +4,29 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "yfs_wallet",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"gdc_number", "user_type"}))
+@Table(
+    name = "yfs_wallet",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"gdc_number", "user_type"})
+)
 public class Wallet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 🔴 ADD: GDC Number
     @Column(name = "gdc_number", nullable = false)
     private String gdcNumber;
 
-    // 🔴 ADD: DRIVER / TRANSPORTER
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false)
     private PaymentType userType;
 
     private Double balance = 0.0;
 
+    // ✅ FIXED — NOW ENUM
     @Enumerated(EnumType.STRING)
-    private String status = "ACTIVE"; // ACTIVE/BLOCKED
+    @Column(nullable = false)
+    private WalletStatus status = WalletStatus.ACTIVE;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -40,63 +42,61 @@ public class Wallet {
         updatedAt = LocalDateTime.now();
     }
 
-	public Long getId() {
-		return id;
-	}
+    // ================= GETTERS / SETTERS =================
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getGdcNumber() {
-		return gdcNumber;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setGdcNumber(String gdcNumber) {
-		this.gdcNumber = gdcNumber;
-	}
+    public String getGdcNumber() {
+        return gdcNumber;
+    }
 
-	public PaymentType getUserType() {
-		return userType;
-	}
+    public void setGdcNumber(String gdcNumber) {
+        this.gdcNumber = gdcNumber;
+    }
 
-	public void setUserType(PaymentType userType) {
-		this.userType = userType;
-	}
+    public PaymentType getUserType() {
+        return userType;
+    }
 
-	public Double getBalance() {
-		return balance;
-	}
+    public void setUserType(PaymentType userType) {
+        this.userType = userType;
+    }
 
-	public void setBalance(Double balance) {
-		this.balance = balance;
-	}
+    public Double getBalance() {
+        return balance;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public void setBalance(Double balance) {
+        this.balance = balance;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public WalletStatus getStatus() {
+        return status;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public void setStatus(WalletStatus status) {
+        this.status = status;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
-    // 🔴 GENERATE getters & setters
-    
-    
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
