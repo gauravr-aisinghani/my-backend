@@ -17,18 +17,36 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    // ================= ADMIN =================
+    // ================= ADMIN (OLD - safe) =================
     public void notifyAdmins(String title, String message) {
 
-        // 1️⃣ DB insert (offline safe)
         Notification n = new Notification();
         n.setRole(Role.ADMIN);
-        n.setUserId("ADMIN"); // ya admin email later
+        n.setUserId("ADMIN");
         n.setTitle(title);
         n.setMessage(message);
-        notificationRepository.save(n);
 
-        // 2️⃣ WebSocket (online)
+        notificationRepository.save(n);
+        messagingTemplate.convertAndSend("/topic/admin", n);
+    }
+
+    // ================= ADMIN (NEW - DRIVER REQUEST) =================
+    public void notifyAdmins(
+            String title,
+            String message,
+            String type,
+            Long referenceId
+    ) {
+
+        Notification n = new Notification();
+        n.setRole(Role.ADMIN);
+        n.setUserId("ADMIN");
+        n.setTitle(title);
+        n.setMessage(message);
+        n.setType(type);               // DRIVER_REQUEST
+        n.setReferenceId(referenceId); // request_id
+
+        notificationRepository.save(n);
         messagingTemplate.convertAndSend("/topic/admin", n);
     }
 
@@ -40,6 +58,7 @@ public class NotificationService {
         n.setUserId(mobile);
         n.setTitle(title);
         n.setMessage(message);
+
         notificationRepository.save(n);
 
         messagingTemplate.convertAndSend(
@@ -56,6 +75,7 @@ public class NotificationService {
         n.setUserId(mobile);
         n.setTitle(title);
         n.setMessage(message);
+
         notificationRepository.save(n);
 
         messagingTemplate.convertAndSend(

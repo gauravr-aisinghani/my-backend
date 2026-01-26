@@ -13,81 +13,91 @@ public class Notification {
 
     private String userId;
 
-    
     @Enumerated(EnumType.STRING)
     private Role role;
 
     private String title;
     private String message;
 
+    // 🔑 NEW FIELDS
+    private String type;          // DRIVER_REQUEST
+    private Long referenceId;     // request_id
+
     private Boolean isRead = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    // getters and setters
-    
-    
 
     public enum Role {
         ADMIN, TRANSPORTER, DRIVER
     }
 
-	public Long getId() {
-		return id;
-	}
+    // ===== getters & setters =====
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getUserId() {
-		return userId;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public String getUserId() {
+        return userId;
+    }
 
-	public Role getRole() {
-		return role;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-	public void setRole(Role role) {
-		this.role = role;
-	}
+    public Role getRole() {
+        return role;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public Boolean getIsRead() {
-		return isRead;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public void setIsRead(Boolean isRead) {
-		this.isRead = isRead;
-	}
+    public Boolean getIsRead() {
+        return isRead;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public void setIsRead(Boolean isRead) {
+        this.isRead = isRead;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-    
-    
-    
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Long getReferenceId() {
+        return referenceId;
+    }
+
+    public void setReferenceId(Long referenceId) {
+        this.referenceId = referenceId;
+    }
 }

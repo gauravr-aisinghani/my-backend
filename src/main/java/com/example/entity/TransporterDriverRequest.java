@@ -16,7 +16,13 @@ public class TransporterDriverRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requestId;
     
-    private UUID transporterRegistrationId;
+    @Column(
+    		  name = "transporter_registration_id",
+    		  columnDefinition = "BINARY(16)"
+    		)
+    		private UUID transporterRegistrationId;
+
+   
 
 
 
