@@ -40,7 +40,9 @@ public class WalletService {
         txn.setAmount(req.getAmount());
         txn.setOpeningBalance(opening);
         txn.setClosingBalance(closing);
-        txn.setTxnType("CREDIT");
+
+        // ✅ Use TransactionType enum
+        txn.setTxnType(TransactionType.CREDIT);
 
         // ✅ Use enum directly
         WalletTransactionPurpose purpose = req.getPurpose() != null
@@ -81,7 +83,10 @@ public class WalletService {
         txn.setAmount(payment.getAmount());
         txn.setOpeningBalance(opening);
         txn.setClosingBalance(closing);
-        txn.setTxnType("CREDIT");
+
+        // ✅ Use enum
+        txn.setTxnType(TransactionType.CREDIT);
+
         txn.setPurpose(purpose);
         txn.setDescription("Payment credited");
 
@@ -117,11 +122,10 @@ public class WalletService {
                     dto.setAmount(t.getAmount());
                     dto.setOpeningBalance(t.getOpeningBalance());
                     dto.setClosingBalance(t.getClosingBalance());
-                    dto.setTxnType(t.getTxnType());
 
-                    // ✅ Convert enum to String for frontend
+                    // ✅ Convert enum to string for frontend
+                    dto.setTxnType(t.getTxnType().name());
                     dto.setPurpose(t.getPurpose().name());
-
                     dto.setDescription(t.getDescription());
                     return dto;
                 }).collect(Collectors.toList());
