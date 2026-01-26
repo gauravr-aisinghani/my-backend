@@ -15,7 +15,6 @@ import com.example.repository.DriverDetailsRepository;
 import com.example.repository.DriverFinalSubmissionRepository;
 import com.example.repository.YfsTransporterDetailsRepository;
 import com.example.repository.TransporterFinalSubmissionRepository;
-import com.example.service.AuthService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -56,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
             return new LoginResponseDto(false, "Transporter not registered");
         }
 
+        // ✅ STRING ID (NO CONVERSION)
         String transporterRegId =
                 transporterOpt.get().getTransporterRegistrationId();
 
@@ -72,15 +72,15 @@ public class AuthServiceImpl implements AuthService {
             return new LoginResponseDto(false, "Transporter not approved yet");
         }
 
-        // 🔥 WebSocket ready
         return new LoginResponseDto(
                 true,
                 "Transporter login successful",
                 "TRANSPORTER",
-                mobile
+                mobile,
+                transporterRegId, // ✅ STRING transporter_registration_id
+                null
         );
     }
-
 
     // ================= DRIVER LOGIN =================
     private LoginResponseDto driverLogin(String mobile) {
@@ -108,6 +108,13 @@ public class AuthServiceImpl implements AuthService {
             return new LoginResponseDto(false, "Driver not approved yet");
         }
 
-        return new LoginResponseDto(true, "Driver login successful");
+        return new LoginResponseDto(
+                true,
+                "Driver login successful",
+                "DRIVER",
+                mobile,
+                null,
+                driverRegId // ✅ driver_registration_id
+        );
     }
 }
