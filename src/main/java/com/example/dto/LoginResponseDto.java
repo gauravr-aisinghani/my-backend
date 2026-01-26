@@ -9,9 +9,12 @@ public class LoginResponseDto {
     private String role;
     private String userId;   // mobile / email
 
-    // 🆕 IDs (AS STRING)
+    // 🆕 IDs
     private String transporterRegistrationId;
     private Long driverRegistrationId;
+
+    // 🆕 GDC number (driver / transporter)
+    private String gdcNumber;
 
     // old constructor (safe)
     public LoginResponseDto(boolean exists, String message) {
@@ -32,14 +35,15 @@ public class LoginResponseDto {
         this.userId = userId;
     }
 
-    // ✅ FULL constructor
+    // ✅ FULL constructor (with GDC)
     public LoginResponseDto(
             boolean exists,
             String message,
             String role,
             String userId,
             String transporterRegistrationId,
-            Long driverRegistrationId
+            Long driverRegistrationId,
+            String gdcNumber
     ) {
         this.exists = exists;
         this.message = message;
@@ -47,6 +51,7 @@ public class LoginResponseDto {
         this.userId = userId;
         this.transporterRegistrationId = transporterRegistrationId;
         this.driverRegistrationId = driverRegistrationId;
+        this.gdcNumber = gdcNumber;
     }
 
     public boolean isExists() { return exists; }
@@ -75,5 +80,13 @@ public class LoginResponseDto {
 
     public void setDriverRegistrationId(Long driverRegistrationId) {
         this.driverRegistrationId = driverRegistrationId;
+    }
+
+    public String getGdcNumber() {
+        return gdcNumber;
+    }
+
+    public void setGdcNumber(String gdcNumber) {
+        this.gdcNumber = gdcNumber;
     }
 }

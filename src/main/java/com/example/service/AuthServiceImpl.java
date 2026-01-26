@@ -55,7 +55,6 @@ public class AuthServiceImpl implements AuthService {
             return new LoginResponseDto(false, "Transporter not registered");
         }
 
-        // ✅ STRING ID (NO CONVERSION)
         String transporterRegId =
                 transporterOpt.get().getTransporterRegistrationId();
 
@@ -77,8 +76,9 @@ public class AuthServiceImpl implements AuthService {
                 "Transporter login successful",
                 "TRANSPORTER",
                 mobile,
-                transporterRegId, // ✅ STRING transporter_registration_id
-                null
+                transporterRegId,
+                null,
+                finalOpt.get().getGdcRegistrationNumber() // ✅ transporter GDC
         );
     }
 
@@ -114,7 +114,8 @@ public class AuthServiceImpl implements AuthService {
                 "DRIVER",
                 mobile,
                 null,
-                driverRegId // ✅ driver_registration_id
+                driverRegId,
+                finalOpt.get().getGdcRegistrationNumber() // ✅ driver GDC
         );
     }
 }
