@@ -2,6 +2,8 @@ package com.example.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.example.entity.WalletTransactionPurpose;
+
 
 @Entity
 @Table(name = "yfs_wallet_transactions")
@@ -25,7 +27,9 @@ public class WalletTransaction {
     private String txnType; // CREDIT / DEBIT
 
     @Enumerated(EnumType.STRING)
-    private String purpose; // use PaymentPurpose.name()
+    @Column(nullable = false)
+    private WalletTransactionPurpose purpose;
+
 
     private String description;
 
@@ -79,13 +83,7 @@ public class WalletTransaction {
 		this.txnType = txnType;
 	}
 
-	public String getPurpose() {
-		return purpose;
-	}
-
-	public void setPurpose(String purpose) {
-		this.purpose = purpose;
-	}
+	
 
 	public String getDescription() {
 		return description;
@@ -103,6 +101,18 @@ public class WalletTransaction {
 		this.createdAt = createdAt;
 	}
 
+	public WalletTransactionPurpose getPurpose() {
+		return purpose;
+	}
+
+	public void setPurpose(WalletTransactionPurpose purpose) {
+		this.purpose = purpose;
+	}
+
+	
+
     // 🔴 GENERATE getters & setters
+	
+	
     
 }
