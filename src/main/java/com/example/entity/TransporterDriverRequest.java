@@ -1,6 +1,7 @@
 package com.example.entity;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import java.time.LocalDateTime;
 
 /**
@@ -14,8 +15,10 @@ public class TransporterDriverRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requestId;
+    
+    private UUID transporterRegistrationId;
 
-    private Long transporterRegistrationId;
+
 
     private String transporterPhone;
 
@@ -67,11 +70,13 @@ public class TransporterDriverRequest {
 		this.requestId = requestId;
 	}
 
-	public Long getTransporterRegistrationId() {
+	
+
+	public UUID getTransporterRegistrationId() {
 		return transporterRegistrationId;
 	}
 
-	public void setTransporterRegistrationId(Long transporterRegistrationId) {
+	public void setTransporterRegistrationId(UUID transporterRegistrationId) {
 		this.transporterRegistrationId = transporterRegistrationId;
 	}
 
