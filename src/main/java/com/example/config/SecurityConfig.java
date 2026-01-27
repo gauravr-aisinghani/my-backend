@@ -88,8 +88,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/wallets/**").permitAll()
                 .requestMatchers("/api/driver-request/**").permitAll()
                 .requestMatchers("/api/driver-request/**/**").permitAll()
-                .requestMatchers("/api/notifications/**").permitAll()
-                .requestMatchers("/api/notifications/**/**").permitAll()
+                .requestMatchers("/api/notifications/transporter/**").permitAll()
+                .requestMatchers("/api/notifications/driver/**").permitAll()
 
 
 
