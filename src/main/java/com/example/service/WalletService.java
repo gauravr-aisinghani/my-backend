@@ -77,7 +77,12 @@ public class WalletService {
         walletRepo.save(wallet);
 
         WalletTransaction txn = new WalletTransaction();
+
         txn.setWallet(wallet);
+
+        // 🔥 THIS LINE WAS MISSING
+        txn.setPaymentId(payment.getId());
+
         txn.setAmount(payment.getAmount());
         txn.setOpeningBalance(opening);
         txn.setClosingBalance(closing);
@@ -87,6 +92,7 @@ public class WalletService {
 
         txnRepo.save(txn);
     }
+
 
     // ================= GET WALLET =================
 
