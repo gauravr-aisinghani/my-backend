@@ -81,6 +81,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/driver-request/create").permitAll()
                 .requestMatchers("/api/driver-request/create/**").permitAll()
                 .requestMatchers("/api/notifications/").permitAll()
+                .requestMatchers("/api/notifications/**").permitAll()
+
                 .requestMatchers("/api/notifications/admin/mark-read/").permitAll()
                 .requestMatchers("/api/notifications/admin/mark-read/**").permitAll()
                 .requestMatchers("/api/notifications/admin/**").permitAll()

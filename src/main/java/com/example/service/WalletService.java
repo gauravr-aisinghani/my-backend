@@ -145,26 +145,33 @@ public class WalletService {
     // =========================
     // 6️⃣ Helper to map PaymentPurpose → WalletTransactionPurpose
     // =========================
-    private WalletTransactionPurpose mapPaymentPurpose(PaymentPurpose paymentPurpose) {
-        if(paymentPurpose == null) return WalletTransactionPurpose.MANUAL_TOPUP;
+    private WalletTransactionPurpose mapPaymentPurpose(PaymentPurpose p) {
 
-        switch(paymentPurpose) {
+        if(p == null) return WalletTransactionPurpose.MANUAL_TOPUP;
+
+        switch(p){
+
             case DRIVER_REGISTRATION:
+                return WalletTransactionPurpose.DRIVER_REGISTRATION;
+
             case TRANSPORTER_REGISTRATION:
-                return WalletTransactionPurpose.REGISTRATION;
+                return WalletTransactionPurpose.TRANSPORTER_REGISTRATION;
+
+            case DRIVER_ADVANCE:
+                return WalletTransactionPurpose.DRIVER_ADVANCE;
 
             case TRANSPORTER_ADVANCE:
                 return WalletTransactionPurpose.TRANSPORTER_ADVANCE;
 
             case MONTHLY_SETTLEMENT:
-                return WalletTransactionPurpose.TRANSPORTER_MONTHLY_SETTLEMENT;
+                return WalletTransactionPurpose.MONTHLY_SETTLEMENT;
 
             case DRIVER_TOPUP:
             case MANUAL_TOPUP:
-            case DRIVER_ADVANCE: // optional
             default:
                 return WalletTransactionPurpose.MANUAL_TOPUP;
         }
     }
+
 
 }
