@@ -87,6 +87,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/notifications/admin/").permitAll()
                 .requestMatchers("/api/wallets/**").permitAll()
                 .requestMatchers("/api/driver-request/**").permitAll()
+                .requestMatchers("/api/driver-request/**/**").permitAll()
+                .requestMatchers("/api/notifications/**").permitAll()
+                .requestMatchers("/api/notifications/**/**").permitAll()
+
+
+
 
 
 
