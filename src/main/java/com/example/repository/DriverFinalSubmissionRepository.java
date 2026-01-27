@@ -6,6 +6,7 @@ import com.example.entity.DriverDetails;
 import com.example.entity.DriverDocuments;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -46,7 +47,14 @@ public interface DriverFinalSubmissionRepository
     findByGdcRegistrationNumber(String gdcRegistrationNumber);
     
     
-    @Query("select d.userId from DriverFinalSubmission d where d.gdcRegistrationNumber = :gdc")
-    Long findUserIdByGdcRegistrationNumber(String gdc);
+    @Query(value = """
+            SELECT d.mobile_number
+            FROM yfs_driver_details d
+            JOIN yfs_driver_final_submission f
+              ON d.driver_registration_id = f.driver_registration_id
+            WHERE f.gdc_registration_number = :gdc
+            LIMIT 1
+        """, nativeQuery = true)
+        String findDriverMobileByGdc(@Param("gdc") String gdc);
 
 }

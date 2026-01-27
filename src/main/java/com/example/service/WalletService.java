@@ -110,8 +110,7 @@ public class WalletService {
         Wallet wallet = walletRepo.findByGdc(gdc,type)
                 .orElseThrow(() -> new RuntimeException("Wallet not found"));
 
-        return txnRepo.findAll().stream()
-                .filter(t -> t.getWallet().getId().equals(wallet.getId()))
+        return txnRepo.findByWalletId(wallet.getId()).stream()
                 .map(t -> {
 
                     WalletTransactionResponseDto dto = new WalletTransactionResponseDto();
@@ -133,12 +132,13 @@ public class WalletService {
     private Wallet createWallet(String gdc, PaymentType type){
 
         Wallet w = new Wallet();
-
         w.setGdcNumber(gdc);
         w.setUserType(type);
         w.setBalance(0.0);
         w.setStatus(WalletStatus.ACTIVE);
-        w.setUserId(resolveUserId(gdc,type));
+
+        String mobile = resolveMobile(gdc,type);
+        w.setUserId(Long.parseLong(mobile));
 
         return walletRepo.save(w);
     }
@@ -171,14 +171,22 @@ public class WalletService {
         }
     }
 
-    // ================= USER ID RESOLVER =================
+    // ================= MOBILE RESOLVER =================
 
-    private Long resolveUserId(String gdc, PaymentType type){
+    private String resolveMobile(String gdc, PaymentType type){
+
+        String mobile;
 
         if(type == PaymentType.DRIVER){
-            return driverRepo.findUserIdByGdcRegistrationNumber(gdc);
-        }else{
-            return transporterRepo.findUserIdByGdcRegistrationNumber(gdc);
+            mobile = driverRepo.findDriverMobileByGdc(gdc);
+        } else {
+            mobile = transporterRepo.findTransporterMobileByGdc(gdc);
         }
+
+        if(mobile == null){
+            throw new RuntimeException("Mobile not found for GDC: " + gdc);
+        }
+
+        return mobile;
     }
 }

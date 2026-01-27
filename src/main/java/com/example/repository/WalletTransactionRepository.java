@@ -3,6 +3,10 @@ package com.example.repository;
 import com.example.entity.WalletTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface WalletTransactionRepository extends JpaRepository<WalletTransaction, Long> {
-    // 🔴 all default CRUD sufficient
+
+    // 🔥 wallet wise transactions
+    List<WalletTransaction> findByWalletId(Long walletId);
 }

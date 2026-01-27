@@ -1,6 +1,7 @@
 package com.example.repository;
 
 import com.example.entity.TransporterFinalSubmission;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,7 +44,14 @@ public interface TransporterFinalSubmissionRepository
             @Param("regId") String regId);
     
     
-    @Query("select t.userId from TransporterFinalSubmission t where t.gdcRegistrationNumber = :gdc")
-    Long findUserIdByGdcRegistrationNumber(String gdc);
+    @Query(value = """
+            SELECT t.owner_mobile_number
+            FROM yfs_transporter_details t
+            JOIN yfs_transporter_final_submission f
+              ON t.transporter_registration_id = f.transporter_registration_id
+            WHERE f.gdc_registration_number = :gdc
+            LIMIT 1
+        """, nativeQuery = true)
+        String findTransporterMobileByGdc(@Param("gdc") String gdc);
 
 }
