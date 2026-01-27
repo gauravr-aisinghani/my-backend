@@ -13,6 +13,11 @@ public class Wallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
 
     @Column(name = "gdc_number", nullable = false)
     private String gdcNumber;
@@ -99,4 +104,14 @@ public class Wallet {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+    
+    
 }

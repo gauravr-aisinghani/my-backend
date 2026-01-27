@@ -44,4 +44,9 @@ public interface DriverFinalSubmissionRepository
     // ✅ find driver by GDC registration number
     Optional<DriverFinalSubmission>
     findByGdcRegistrationNumber(String gdcRegistrationNumber);
+    
+    
+    @Query("select d.userId from DriverFinalSubmission d where d.gdcRegistrationNumber = :gdc")
+    Long findUserIdByGdcRegistrationNumber(String gdc);
+
 }

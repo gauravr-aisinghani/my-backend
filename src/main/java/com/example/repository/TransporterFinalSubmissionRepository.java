@@ -41,4 +41,9 @@ public interface TransporterFinalSubmissionRepository
         """, nativeQuery = true)
     List<Map<String, Object>> getFullTransporterProfileRaw(
             @Param("regId") String regId);
+    
+    
+    @Query("select t.userId from TransporterFinalSubmission t where t.gdcRegistrationNumber = :gdc")
+    Long findUserIdByGdcRegistrationNumber(String gdc);
+
 }
