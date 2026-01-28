@@ -27,8 +27,6 @@ public class PaymentService {
     private final TransporterFinalSubmissionRepository transporterRepo;
     private final WalletService walletService;
     private final TransporterSettlementService settlementService;
-
-    // 🔥 NEW
     private final NotificationService notificationService;
 
     @Value("${razorpay.key-id}")
@@ -45,7 +43,7 @@ public class PaymentService {
             TransporterFinalSubmissionRepository transporterRepo,
             WalletService walletService,
             TransporterSettlementService settlementService,
-            NotificationService notificationService   // 🔥 ADD
+            NotificationService notificationService
     ){
         this.razorpayClient = razorpayClient;
         this.paymentRepo = paymentRepo;
@@ -54,7 +52,7 @@ public class PaymentService {
         this.transporterRepo = transporterRepo;
         this.walletService = walletService;
         this.settlementService = settlementService;
-        this.notificationService = notificationService; // 🔥 ADD
+        this.notificationService = notificationService;
     }
 
     // ================= CREATE ORDER =================
@@ -171,13 +169,20 @@ public class PaymentService {
 
         saveTxn(payment,req,PaymentEventType.PAYMENT_SUCCESS);
 
-        // ===== BUSINESS FLAGS =====
+        // ===== WALLET CREDIT FIRST =====
+
+        if(payment.getPurpose()!=PaymentPurpose.DRIVER_REGISTRATION &&
+           payment.getPurpose()!=PaymentPurpose.TRANSPORTER_REGISTRATION){
+
+            walletService.credit(payment);
+        }
+
+        // ===== AFTER WALLET =====
 
         if(payment.getPurpose()==PaymentPurpose.TRANSPORTER_ADVANCE){
 
             settlementService.markAdvancePaid(payment.getGdcNumber());
 
-            // 🔔 ADMIN NOTIFICATION
             notificationService.notifyAdmins(
                     "Driver Advance Received",
                     "Transporter " + payment.getGdcNumber() +
@@ -189,14 +194,6 @@ public class PaymentService {
 
         if(payment.getPurpose()==PaymentPurpose.MONTHLY_SETTLEMENT){
             settlementService.markSettlementPaid(payment.getGdcNumber());
-        }
-
-        // ===== WALLET CREDIT =====
-
-        if(payment.getPurpose()!=PaymentPurpose.DRIVER_REGISTRATION &&
-           payment.getPurpose()!=PaymentPurpose.TRANSPORTER_REGISTRATION){
-
-            walletService.credit(payment);
         }
 
         return new VerifyPaymentResponse("SUCCESS","Payment success");
