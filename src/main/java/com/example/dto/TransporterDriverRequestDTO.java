@@ -14,8 +14,17 @@ public class TransporterDriverRequestDTO {
     private String route;
     private Double monthlySalary;
     private String remarks;
+    private String vehicleGrade;
 
-    public UUID getTransporterRegistrationId() {
+    public String getVehicleGrade() {
+		return vehicleGrade;
+	}
+
+	public void setVehicleGrade(String vehicleGrade) {
+		this.vehicleGrade = vehicleGrade;
+	}
+
+	public UUID getTransporterRegistrationId() {
         return transporterRegistrationId;
     }
 

@@ -1,6 +1,8 @@
 package com.example.service;
 
 import com.example.dto.TransporterDriverRequestDTO;
+import com.example.entity.VehicleGrade;
+
 import com.example.entity.TransporterDriverRequest;
 import com.example.repository.TransporterDriverRequestRepository;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,10 @@ public class TransporterDriverRequestServiceImpl implements TransporterDriverReq
         request.setTransporterPhone(dto.getTransporterPhone());
         request.setGdcNumber(dto.getGdcNumber());
         request.setVehicleNumber(dto.getVehicleNumber());
+        request.setVehicleGrade(
+        	    VehicleGrade.valueOf(dto.getVehicleGrade())
+        	);
+
         request.setRoute(dto.getRoute());
         request.setMonthlySalary(dto.getMonthlySalary());
         request.setRemarks(dto.getRemarks());

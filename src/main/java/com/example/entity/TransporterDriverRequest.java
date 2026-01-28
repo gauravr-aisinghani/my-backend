@@ -1,6 +1,7 @@
 package com.example.entity;
 
 import jakarta.persistence.*;
+
 import java.util.UUID;
 import java.time.LocalDateTime;
 
@@ -8,6 +9,10 @@ import java.time.LocalDateTime;
  * Entity representing a Driver Request raised by Transporter
  * Table: yfs_driver_requests
  */
+
+
+
+
 @Entity
 @Table(name = "yfs_driver_requests")
 public class TransporterDriverRequest {
@@ -39,11 +44,24 @@ public class TransporterDriverRequest {
 
     @Column(name="settlement_paid")
     private Boolean settlementPaid = false;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "vehicle_grade")
+    private VehicleGrade vehicleGrade;
+
 
     // getters setters
 
 
-    private Double monthlySalary;
+    public VehicleGrade getVehicleGrade() {
+		return vehicleGrade;
+	}
+
+	public void setVehicleGrade(VehicleGrade vehicleGrade) {
+		this.vehicleGrade = vehicleGrade;
+	}
+
+	private Double monthlySalary;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
