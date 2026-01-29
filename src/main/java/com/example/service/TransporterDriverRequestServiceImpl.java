@@ -96,8 +96,11 @@ public class TransporterDriverRequestServiceImpl implements TransporterDriverReq
                 request.getTransporterPhone(),
                 "Driver Request Accepted",
                 "Your driver request has been approved. Please pay 20% advance ₹"
-                        + advanceAmount
+                        + advanceAmount,
+                "DRIVER_REQUEST",
+                request.getRequestId()
         );
+
 
         return saved;
     }

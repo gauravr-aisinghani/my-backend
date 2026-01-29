@@ -68,7 +68,11 @@ public class PaymentService {
                     .orElseThrow(() -> new RuntimeException("Invalid Transporter"));
         }
 
-      
+        if ((req.getPurpose() == PaymentPurpose.TRANSPORTER_ADVANCE
+                || req.getPurpose() == PaymentPurpose.MONTHLY_SETTLEMENT)
+                && req.getRequestId() == null) {
+            throw new RuntimeException("requestId is mandatory for this payment");
+        }
 
         Double amount = resolveAmount(req);
 

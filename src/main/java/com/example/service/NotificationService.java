@@ -43,14 +43,14 @@ public class NotificationService {
         n.setUserId("ADMIN");
         n.setTitle(title);
         n.setMessage(message);
-        n.setType(type);               // DRIVER_REQUEST
-        n.setReferenceId(referenceId); // request_id
+        n.setType(type);
+        n.setReferenceId(referenceId);
 
         notificationRepository.save(n);
         messagingTemplate.convertAndSend("/topic/admin", n);
     }
 
-    // ================= TRANSPORTER =================
+    // ================= TRANSPORTER (OLD - keep as is) =================
     public void notifyTransporter(String mobile, String title, String message) {
 
         Notification n = new Notification();
@@ -58,6 +58,31 @@ public class NotificationService {
         n.setUserId(mobile);
         n.setTitle(title);
         n.setMessage(message);
+
+        notificationRepository.save(n);
+
+        messagingTemplate.convertAndSend(
+                "/queue/transporter/" + mobile,
+                n
+        );
+    }
+
+    // ================= TRANSPORTER (NEW - WITH reference_id) =================
+    public void notifyTransporter(
+            String mobile,
+            String title,
+            String message,
+            String type,
+            Long referenceId
+    ) {
+
+        Notification n = new Notification();
+        n.setRole(Role.TRANSPORTER);
+        n.setUserId(mobile);
+        n.setTitle(title);
+        n.setMessage(message);
+        n.setType(type);
+        n.setReferenceId(referenceId); // 🔥 yahi missing tha
 
         notificationRepository.save(n);
 
