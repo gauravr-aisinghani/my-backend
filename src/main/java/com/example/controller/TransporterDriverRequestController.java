@@ -46,6 +46,15 @@ public class TransporterDriverRequestController {
 	        return ResponseEntity.badRequest().body(e.getMessage());
 	    }
 	}
+	
+	
+	@GetMapping("/eligible-for-assignment")
+	public ResponseEntity<List<TransporterDriverRequest>> getEligibleRequests() {
+	    return ResponseEntity.ok(
+	            service.getEligibleRequestsForAssignment()
+	    );
+	}
+
 
 	/**
 	 * Get all requests

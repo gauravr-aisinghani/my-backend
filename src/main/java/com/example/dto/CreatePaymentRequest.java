@@ -7,8 +7,19 @@ public class CreatePaymentRequest {
 
     private String gdcNumber;
     private PaymentType type;
+    
+    private Long requestId; // OPTIONAL
 
-    // 🔴 ADD
+
+    public Long getRequestId() {
+		return requestId;
+	}
+
+	public void setRequestId(Long requestId) {
+		this.requestId = requestId;
+	}
+
+	// 🔴 ADD
     private PaymentPurpose purpose;
 
     // 🔴 ADD (only used for TOPUP / ADVANCE)

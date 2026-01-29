@@ -24,6 +24,12 @@ public class TransporterDriverRequestServiceImpl implements TransporterDriverReq
         this.notificationService = notificationService;
     }
 
+    
+    @Override
+    public List<TransporterDriverRequest> getEligibleRequestsForAssignment() {
+        return repository.findEligibleRequestsForAssignment();
+    }
+
     @Override
     public TransporterDriverRequest createRequest(TransporterDriverRequestDTO dto) throws Exception {
 

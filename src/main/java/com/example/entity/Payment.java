@@ -16,11 +16,25 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "request_id")
+    private Long requestId;
+
+    // getter & setter
+
 
     @Column(name = "gdc_number", nullable = false)
     private String gdcNumber;
     
- // 🔴 ADD
+ public Long getRequestId() {
+		return requestId;
+	}
+
+	public void setRequestId(Long requestId) {
+		this.requestId = requestId;
+	}
+
+	// 🔴 ADD
     @Enumerated(EnumType.STRING)
     private PaymentPurpose purpose;
 

@@ -4,56 +4,58 @@ import com.example.entity.TransporterDriverRequest;
 import com.example.repository.TransporterDriverRequestRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class TransporterSettlementService {
 
     private final TransporterDriverRequestRepository requestRepo;
 
-    public TransporterSettlementService(TransporterDriverRequestRepository repo) {
-        this.requestRepo = repo;
+    public TransporterSettlementService(TransporterDriverRequestRepository requestRepo) {
+        this.requestRepo = requestRepo;
     }
 
     // ================= ADVANCE (20%) =================
-    public Double calculateAdvance(String gdcNumber) {
+    public Double calculateAdvance(Long requestId) {
 
-        List<TransporterDriverRequest> list =
-                requestRepo.findByGdcNumberAndAdvancePaidFalse(gdcNumber);
+        TransporterDriverRequest request = requestRepo.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Driver request not found"));
 
-        return list.stream()
-                .mapToDouble(r -> r.getMonthlySalary() * 0.20)
-                .sum();
+        if (Boolean.TRUE.equals(request.getAdvancePaid())) {
+            throw new RuntimeException("Advance already paid for this request");
+        }
+
+        return request.getMonthlySalary() * 0.20;
     }
 
-    // ================= MONTHLY =================
-    public Double calculateMonthlySettlement(String gdcNumber) {
+    // ================= MONTHLY SETTLEMENT =================
+    public Double calculateMonthlySettlement(Long requestId) {
 
-        List<TransporterDriverRequest> list =
-                requestRepo.findByGdcNumberAndSettlementPaidFalse(gdcNumber);
+        TransporterDriverRequest request = requestRepo.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Driver request not found"));
 
-        return list.stream()
-                .mapToDouble(TransporterDriverRequest::getMonthlySalary)
-                .sum();
+        if (Boolean.TRUE.equals(request.getSettlementPaid())) {
+            throw new RuntimeException("Settlement already paid for this request");
+        }
+
+        return request.getMonthlySalary();
     }
 
     // ================= MARK ADVANCE PAID =================
-    public void markAdvancePaid(String gdcNumber) {
+    public void markAdvancePaid(Long requestId) {
 
-        requestRepo.findByGdcNumberAndAdvancePaidFalse(gdcNumber)
-                .forEach(r -> {
-                    r.setAdvancePaid(true);
-                    requestRepo.save(r);
-                });
+        TransporterDriverRequest request = requestRepo.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Driver request not found"));
+
+        request.setAdvancePaid(true);
+        requestRepo.save(request);
     }
 
     // ================= MARK SETTLEMENT PAID =================
-    public void markSettlementPaid(String gdcNumber) {
+    public void markSettlementPaid(Long requestId) {
 
-        requestRepo.findByGdcNumberAndSettlementPaidFalse(gdcNumber)
-                .forEach(r -> {
-                    r.setSettlementPaid(true);
-                    requestRepo.save(r);
-                });
+        TransporterDriverRequest request = requestRepo.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Driver request not found"));
+
+        request.setSettlementPaid(true);
+        requestRepo.save(request);
     }
 }
