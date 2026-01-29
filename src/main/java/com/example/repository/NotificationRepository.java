@@ -11,4 +11,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 	        String userId,
 	        Notification.Role role
 	);
+	
+    List<Notification> findByReferenceId(Long referenceId);
+
 }
