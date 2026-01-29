@@ -12,6 +12,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -147,6 +148,7 @@ public class PaymentService {
 
     // ================= VERIFY PAYMENT =================
 
+    @Transactional
     public VerifyPaymentResponse verifyPayment(VerifyPaymentRequest req) {
 
         Payment payment = paymentRepo.findByRazorpayOrderId(req.getRazorpayOrderId())
@@ -165,7 +167,6 @@ public class PaymentService {
         }
 
         // ===== SUCCESS =====
-
         payment.setRazorpayPaymentId(req.getRazorpayPaymentId());
         payment.setRazorpaySignature(req.getRazorpaySignature());
         payment.setStatus(PaymentStatus.PAID);
@@ -180,10 +181,10 @@ public class PaymentService {
         }
 
         // ===== POST PAYMENT ACTIONS =====
-
         if (payment.getPurpose() == PaymentPurpose.TRANSPORTER_ADVANCE) {
             settlementService.markAdvancePaid(payment.getRequestId());
 
+            // Admin notify
             notificationService.notifyAdmins(
                     "Driver Advance Received",
                     "Advance paid for request ID " + payment.getRequestId()
@@ -191,6 +192,9 @@ public class PaymentService {
                     "TRANSPORTER_ADVANCE",
                     payment.getId()
             );
+
+            // 🔹 Auto mark related notification as read
+            notificationService.markNotificationReadByReferenceId(payment.getRequestId());
         }
 
         if (payment.getPurpose() == PaymentPurpose.MONTHLY_SETTLEMENT) {

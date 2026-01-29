@@ -1,5 +1,7 @@
 package com.example.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -67,6 +69,9 @@ public class NotificationService {
         );
     }
 
+    
+ 
+
     // ================= TRANSPORTER (NEW - WITH reference_id) =================
     public void notifyTransporter(
             String mobile,
@@ -90,6 +95,23 @@ public class NotificationService {
                 "/queue/transporter/" + mobile,
                 n
         );
+    }
+
+    
+//    public void markNotificationReadByReferenceId(Long requestId) {
+//        List<Notification> notifications = notificationRepository.findByReferenceId(requestId);
+//        for (Notification n : notifications) {
+//            n.setIsRead(true);
+//            notificationRepository.save(n);
+//        }
+//    }
+    
+    public void markNotificationReadByReferenceId(Long referenceId) {
+        List<Notification> notifications = notificationRepository.findByReferenceId(referenceId);
+        for (Notification n : notifications) {
+            n.setIsRead(true);
+            notificationRepository.save(n);
+        }
     }
 
     // ================= DRIVER =================

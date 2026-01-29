@@ -1,17 +1,14 @@
 package com.example.repository;
 
 import com.example.entity.Notification;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-	List<Notification> findByUserIdAndRoleAndIsReadFalse(
-	        String userId,
-	        Notification.Role role
-	);
-	
-    List<Notification> findByReferenceId(Long referenceId);
+    // existing
+    List<Notification> findByUserIdAndRoleAndIsReadFalse(String userId, Notification.Role role);
 
+    // 🔹 ADD THIS METHOD
+    List<Notification> findByReferenceId(Long referenceId);
 }
