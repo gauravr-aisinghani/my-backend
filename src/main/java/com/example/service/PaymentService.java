@@ -190,7 +190,7 @@ public class PaymentService {
                     "Advance paid for request ID " + payment.getRequestId()
                             + " amount ₹" + payment.getAmount(),
                     "TRANSPORTER_ADVANCE",
-                    payment.getId()
+                    payment.getRequestId()
             );
 
             // 🔹 Auto mark related notification as read
