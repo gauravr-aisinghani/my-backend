@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class LedgerSummaryDto {
 
     @JsonProperty("id")
-    private String id;
+    private Long id;  // Changed from String to Long
 
     @JsonProperty("name")
     private String name;
@@ -20,7 +20,7 @@ public class LedgerSummaryDto {
     private String status;
 
     public LedgerSummaryDto(
-            String id,
+            Long id,   // Changed from String to Long
             String name,
             String code,
             Double balance,
@@ -33,7 +33,7 @@ public class LedgerSummaryDto {
         this.status = status;
     }
 
-    public String getId() { return id; }
+    public Long getId() { return id; }
     public String getName() { return name; }
     public String getCode() { return code; }
     public Double getBalance() { return balance; }
