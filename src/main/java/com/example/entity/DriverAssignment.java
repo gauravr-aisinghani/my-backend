@@ -14,9 +14,10 @@ import jakarta.persistence.Table;
 @Table(name = "yfs_driver_assignments")
 public class DriverAssignment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long assignmentId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "assignment_id")
+	private Long assignmentId;
 
     @Column(name = "request_id", nullable = false)
     private Long requestId;
