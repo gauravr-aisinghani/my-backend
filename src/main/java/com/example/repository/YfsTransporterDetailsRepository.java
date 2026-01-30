@@ -31,12 +31,16 @@ public interface YfsTransporterDetailsRepository
         )
         FROM YfsTransporterDetails t
         JOIN TransporterFinalSubmission f
-          WITH f.transporterRegistrationId = t.transporterRegistrationId
+            ON f.transporterRegistrationId = t.transporterRegistrationId
         JOIN Wallet w
-          WITH w.gdcNumber = f.gdcRegistrationNumber
-             AND w.userType = com.example.entity.PaymentType.TRANSPORTER
-        WHERE (:search IS NULL OR LOWER(t.transportCompanyName) LIKE LOWER(CONCAT('%', :search, '%')))
+            ON w.gdcNumber = f.gdcRegistrationNumber
+           AND w.userType = :userType
+        WHERE (:search IS NULL
+               OR LOWER(t.transportCompanyName) LIKE LOWER(CONCAT('%', :search, '%')))
     """)
-    List<LedgerSummaryDto> fetchTransporterLedgerSummary(@Param("search") String search);
+    List<LedgerSummaryDto> fetchTransporterLedgerSummary(
+            @Param("search") String search,
+            @Param("userType") PaymentType userType
+    );
 
 }

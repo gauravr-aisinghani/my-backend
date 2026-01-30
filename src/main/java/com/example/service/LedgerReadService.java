@@ -4,7 +4,6 @@ import com.example.dto.LedgerRowDto;
 import com.example.dto.LedgerSummaryDto;
 import com.example.entity.*;
 import com.example.repository.*;
-
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -97,18 +96,18 @@ public class LedgerReadService {
     }
 
     // ================= ALL TRANSPORTERS (SEARCHABLE) =================
- // ================= ALL TRANSPORTERS (SEARCHABLE) =================
     public List<LedgerSummaryDto> allTransporters(String search) {
         return transporterRepo.fetchTransporterLedgerSummary(
-                (search == null || search.isBlank()) ? null : search
+                (search == null || search.isBlank()) ? null : search,
+                PaymentType.TRANSPORTER
         );
     }
 
-
     // ================= ALL DRIVERS (SEARCHABLE) =================
- // ================= ALL DRIVERS (SEARCHABLE) =================
     public List<LedgerSummaryDto> allDrivers(String search) {
-        return driverRepo.fetchDriverLedgerSummary(search);
+        return driverRepo.fetchDriverLedgerSummary(
+                (search == null || search.isBlank()) ? null : search,
+                PaymentType.DRIVER
+        );
     }
-
 }
