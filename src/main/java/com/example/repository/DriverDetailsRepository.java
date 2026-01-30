@@ -33,8 +33,8 @@ public interface DriverDetailsRepository extends JpaRepository<DriverDetails, Lo
             f.gdc_registration_number AS code,
             w.balance                 AS balance,
             w.status                  AS status
-        FROM driver_details d
-        JOIN driver_final_submission f
+        FROM yfs_driver_details d
+        JOIN yfs_driver_final_submission f
             ON f.driver_registration_id = d.driver_registration_id
         JOIN wallet w
             ON w.gdc_number = f.gdc_registration_number

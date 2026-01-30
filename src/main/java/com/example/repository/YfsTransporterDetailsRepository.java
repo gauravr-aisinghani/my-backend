@@ -32,7 +32,7 @@ public interface YfsTransporterDetailsRepository
             w.balance                     AS balance,
             w.status                      AS status
         FROM yfs_transporter_details t
-        JOIN transporter_final_submission f
+        JOIN yfs_transporter_final_submission f
             ON f.transporter_registration_id = t.transporter_registration_id
         JOIN wallet w
             ON w.gdc_number = f.gdc_registration_number
