@@ -2,7 +2,6 @@ package com.example.repository;
 
 import com.example.dto.LedgerSummaryDto;
 import com.example.entity.DriverDetails;
-import com.example.entity.PaymentType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -45,6 +44,6 @@ public interface DriverDetailsRepository extends JpaRepository<DriverDetails, Lo
     )
     List<LedgerSummaryDto> fetchDriverLedgerSummary(
             @Param("search") String search,
-            @Param("userType") String userType
+            @Param("userType") String userType   // ✅ STRING
     );
 }

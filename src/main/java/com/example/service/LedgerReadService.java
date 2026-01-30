@@ -34,8 +34,11 @@ public class LedgerReadService {
 
         Wallet wallet = walletRepository
                 .findByGdc(gdcNumber, PaymentType.TRANSPORTER)
-                .orElseThrow(() -> new RuntimeException("Transporter wallet not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Transporter wallet not found for GDC: " + gdcNumber)
+                );
 
+        // name sirf future use ke liye (UI etc)
         transporterRepo
                 .findByTransporterRegistrationId(gdcNumber)
                 .map(YfsTransporterDetails::getTransportCompanyName)
@@ -52,7 +55,9 @@ public class LedgerReadService {
 
         Wallet wallet = walletRepository
                 .findByGdc(gdcNumber, PaymentType.DRIVER)
-                .orElseThrow(() -> new RuntimeException("Driver wallet not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Driver wallet not found for GDC: " + gdcNumber)
+                );
 
         driverRepo
                 .findByDriverRegistrationId(driverRegistrationId)
@@ -62,7 +67,7 @@ public class LedgerReadService {
         return buildLedger(wallet);
     }
 
-    // ================= COMMON BUILDER =================
+    // ================= COMMON LEDGER BUILDER =================
     private List<LedgerRowDto> buildLedger(Wallet wallet) {
 
         List<WalletTransaction> transactions =
@@ -99,7 +104,7 @@ public class LedgerReadService {
     public List<LedgerSummaryDto> allTransporters(String search) {
         return transporterRepo.fetchTransporterLedgerSummary(
                 (search == null || search.isBlank()) ? null : search,
-                PaymentType.TRANSPORTER.name()   // 🔥 FIX
+                PaymentType.TRANSPORTER
         );
     }
 
@@ -107,7 +112,7 @@ public class LedgerReadService {
     public List<LedgerSummaryDto> allDrivers(String search) {
         return driverRepo.fetchDriverLedgerSummary(
                 (search == null || search.isBlank()) ? null : search,
-                PaymentType.DRIVER.name()        // 🔥 FIX
+                PaymentType.DRIVER.name() // 🔥 native query → STRING
         );
     }
 }
