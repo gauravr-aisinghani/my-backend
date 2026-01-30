@@ -37,12 +37,12 @@ public class LedgerReadService {
                 .findByGdc(gdcNumber, PaymentType.TRANSPORTER)
                 .orElseThrow(() -> new RuntimeException("Transporter wallet not found"));
 
-        String transporterName = transporterRepo
+        transporterRepo
                 .findByTransporterRegistrationId(gdcNumber)
                 .map(YfsTransporterDetails::getTransportCompanyName)
                 .orElse("Unknown Transporter");
 
-        return buildLedger(wallet, transporterName, "TRP");
+        return buildLedger(wallet);
     }
 
     // ================= DRIVER LEDGER =================
@@ -55,77 +55,75 @@ public class LedgerReadService {
                 .findByGdc(gdcNumber, PaymentType.DRIVER)
                 .orElseThrow(() -> new RuntimeException("Driver wallet not found"));
 
-        String driverName = driverRepo
+        driverRepo
                 .findByDriverRegistrationId(driverRegistrationId)
                 .map(DriverDetails::getFullName)
                 .orElse("Unknown Driver");
 
-        return buildLedger(wallet, driverName, "DRV");
+        return buildLedger(wallet);
     }
 
     // ================= COMMON BUILDER =================
-    private List<LedgerRowDto> buildLedger(
-            Wallet wallet,
-            String name,
-            String prefix
-    ) {
+    private List<LedgerRowDto> buildLedger(Wallet wallet) {
 
         List<WalletTransaction> transactions =
                 walletTransactionRepository
                         .findByWalletIdOrderByCreatedAtAsc(wallet.getId());
 
         List<LedgerRowDto> ledger = new ArrayList<>();
-        int seq = 1;
 
         for (WalletTransaction tx : transactions) {
 
             Double credit = tx.getTxnType() == TransactionType.CREDIT
-                    ? tx.getAmount() : null;
+                    ? tx.getAmount()
+                    : null;
 
             Double debit = tx.getTxnType() == TransactionType.DEBIT
-                    ? tx.getAmount() : null;
+                    ? tx.getAmount()
+                    : null;
 
             ledger.add(
                     new LedgerRowDto(
                             tx.getCreatedAt(),
-                            name,
-                            prefix + String.format("%04d", seq++),
+                            tx.getPurpose().name(),
                             credit,
                             debit,
-                            tx.getClosingBalance(),
-                            tx.getPurpose().name()
+                            tx.getClosingBalance()
                     )
             );
         }
 
         return ledger;
     }
-    
- // ================= ALL TRANSPORTERS (SEARCHABLE) =================
+
+    // ================= ALL TRANSPORTERS (SEARCHABLE) =================
     public List<LedgerSummaryDto> allTransporters(String search) {
 
         List<YfsTransporterDetails> transporters =
                 (search == null || search.isBlank())
                         ? transporterRepo.findAll()
-                        : transporterRepo
-                            .findByTransportCompanyNameContainingIgnoreCase(search);
+                        : transporterRepo.findByTransportCompanyNameContainingIgnoreCase(search);
 
         List<LedgerSummaryDto> result = new ArrayList<>();
 
         for (YfsTransporterDetails t : transporters) {
 
             walletRepository
-                .findByGdc(t.getTransporterRegistrationId(), PaymentType.TRANSPORTER)
-                .ifPresent(wallet ->
-                    result.add(
-                        new LedgerSummaryDto(
-                            wallet.getGdcNumber(),
-                            t.getTransportCompanyName(),
-                            wallet.getBalance(),
-                            wallet.getStatus().name()
-                        )
+                    .findByGdc(
+                            t.getTransporterRegistrationId(),
+                            PaymentType.TRANSPORTER
                     )
-                );
+                    .ifPresent(wallet ->
+                            result.add(
+                                    new LedgerSummaryDto(
+                                            t.getTransporterRegistrationId(),
+                                            t.getTransportCompanyName(),
+                                            "TRP" + t.getTransporterRegistrationId(),
+                                            wallet.getBalance(),
+                                            wallet.getStatus().name()
+                                    )
+                            )
+                    );
         }
 
         return result;
@@ -144,20 +142,23 @@ public class LedgerReadService {
         for (DriverDetails d : drivers) {
 
             walletRepository
-                .findByGdc(d.getDriverRegistrationId().toString(), PaymentType.DRIVER)
-                .ifPresent(wallet ->
-                    result.add(
-                        new LedgerSummaryDto(
-                            wallet.getGdcNumber(),
-                            d.getFullName(),
-                            wallet.getBalance(),
-                            wallet.getStatus().name()
-                        )
+                    .findByGdc(
+                            d.getDriverRegistrationId().toString(),
+                            PaymentType.DRIVER
                     )
-                );
+                    .ifPresent(wallet ->
+                            result.add(
+                                    new LedgerSummaryDto(
+                                            d.getDriverRegistrationId().toString(),
+                                            d.getFullName(),
+                                            "DRV" + d.getDriverRegistrationId(),
+                                            wallet.getBalance(),
+                                            wallet.getStatus().name()
+                                    )
+                            )
+                    );
         }
 
         return result;
     }
-
 }

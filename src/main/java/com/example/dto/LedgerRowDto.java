@@ -1,40 +1,42 @@
 package com.example.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
 public class LedgerRowDto {
 
-    private LocalDateTime date;
-    private String partyName;     // Transporter / Driver Name
-    private String referenceId;   // TRP0001 / DRV0001
-    private Double credit;
-    private Double debit;
-    private Double balance;
-    private String purpose;
+    @JsonProperty("txn_date")
+    private LocalDateTime txnDate;
+
+    @JsonProperty("description")
+    private String description;
+
+    @JsonProperty("credit_amount")
+    private Double creditAmount;
+
+    @JsonProperty("debit_amount")
+    private Double debitAmount;
+
+    @JsonProperty("closing_balance")
+    private Double closingBalance;
 
     public LedgerRowDto(
-            LocalDateTime date,
-            String partyName,
-            String referenceId,
-            Double credit,
-            Double debit,
-            Double balance,
-            String purpose
+            LocalDateTime txnDate,
+            String description,
+            Double creditAmount,
+            Double debitAmount,
+            Double closingBalance
     ) {
-        this.date = date;
-        this.partyName = partyName;
-        this.referenceId = referenceId;
-        this.credit = credit;
-        this.debit = debit;
-        this.balance = balance;
-        this.purpose = purpose;
+        this.txnDate = txnDate;
+        this.description = description;
+        this.creditAmount = creditAmount;
+        this.debitAmount = debitAmount;
+        this.closingBalance = closingBalance;
     }
 
-    public LocalDateTime getDate() { return date; }
-    public String getPartyName() { return partyName; }
-    public String getReferenceId() { return referenceId; }
-    public Double getCredit() { return credit; }
-    public Double getDebit() { return debit; }
-    public Double getBalance() { return balance; }
-    public String getPurpose() { return purpose; }
+    public LocalDateTime getTxnDate() { return txnDate; }
+    public String getDescription() { return description; }
+    public Double getCreditAmount() { return creditAmount; }
+    public Double getDebitAmount() { return debitAmount; }
+    public Double getClosingBalance() { return closingBalance; }
 }
