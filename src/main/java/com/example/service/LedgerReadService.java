@@ -97,68 +97,18 @@ public class LedgerReadService {
     }
 
     // ================= ALL TRANSPORTERS (SEARCHABLE) =================
+ // ================= ALL TRANSPORTERS (SEARCHABLE) =================
     public List<LedgerSummaryDto> allTransporters(String search) {
-
-        List<YfsTransporterDetails> transporters =
-                (search == null || search.isBlank())
-                        ? transporterRepo.findAll()
-                        : transporterRepo.findByTransportCompanyNameContainingIgnoreCase(search);
-
-        List<LedgerSummaryDto> result = new ArrayList<>();
-
-        for (YfsTransporterDetails t : transporters) {
-
-            walletRepository
-                    .findByGdc(
-                            t.getTransporterRegistrationId(),
-                            PaymentType.TRANSPORTER
-                    )
-                    .ifPresent(wallet ->
-                            result.add(
-                                    new LedgerSummaryDto(
-                                            t.getTransporterRegistrationId(),
-                                            t.getTransportCompanyName(),
-                                            "TRP" + t.getTransporterRegistrationId(),
-                                            wallet.getBalance(),
-                                            wallet.getStatus().name()
-                                    )
-                            )
-                    );
-        }
-
-        return result;
+        return transporterRepo.fetchTransporterLedgerSummary(
+                (search == null || search.isBlank()) ? null : search
+        );
     }
+
 
     // ================= ALL DRIVERS (SEARCHABLE) =================
+ // ================= ALL DRIVERS (SEARCHABLE) =================
     public List<LedgerSummaryDto> allDrivers(String search) {
-
-        List<DriverDetails> drivers =
-                (search == null || search.isBlank())
-                        ? driverRepo.findAll()
-                        : driverRepo.findByFullNameContainingIgnoreCase(search);
-
-        List<LedgerSummaryDto> result = new ArrayList<>();
-
-        for (DriverDetails d : drivers) {
-
-            walletRepository
-                    .findByGdc(
-                            d.getDriverRegistrationId().toString(),
-                            PaymentType.DRIVER
-                    )
-                    .ifPresent(wallet ->
-                            result.add(
-                                    new LedgerSummaryDto(
-                                            d.getDriverRegistrationId().toString(),
-                                            d.getFullName(),
-                                            "DRV" + d.getDriverRegistrationId(),
-                                            wallet.getBalance(),
-                                            wallet.getStatus().name()
-                                    )
-                            )
-                    );
-        }
-
-        return result;
+        return driverRepo.fetchDriverLedgerSummary(search);
     }
+
 }
