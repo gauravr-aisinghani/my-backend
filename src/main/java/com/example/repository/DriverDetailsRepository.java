@@ -23,21 +23,21 @@ public interface DriverDetailsRepository extends JpaRepository<DriverDetails, Lo
     List<DriverDetails> findByFullNameContainingIgnoreCase(String fullName);
     
     @Query("""
-        SELECT new com.example.dto.LedgerSummaryDto(
-            d.driverRegistrationId,  -- Removed CAST
-            d.fullName,
-            f.gdcRegistrationNumber,
-            w.balance,
-            w.status.name()
-        )
-        FROM DriverDetails d
-        JOIN DriverFinalSubmission f
-          ON f.driverRegistrationId = d.driverRegistrationId
-        JOIN Wallet w
-          ON w.gdcNumber = f.gdcRegistrationNumber
-         AND w.userType = com.example.entity.PaymentType.DRIVER
-        WHERE (:search IS NULL
-            OR LOWER(d.fullName) LIKE LOWER(CONCAT('%', :search, '%')))
-        """)
-    List<LedgerSummaryDto> fetchDriverLedgerSummary(@Param("search") String search);
+    	    SELECT new com.example.dto.LedgerSummaryDto(
+    	        d.driverRegistrationId, 
+    	        d.fullName, 
+    	        f.gdcRegistrationNumber, 
+    	        w.balance, 
+    	        w.status
+    	    )
+    	    FROM DriverDetails d
+    	    JOIN DriverFinalSubmission f
+    	      WITH f.driverRegistrationId = d.driverRegistrationId
+    	    JOIN Wallet w
+    	      WITH w.gdcNumber = f.gdcRegistrationNumber
+    	         AND w.userType = com.example.entity.PaymentType.DRIVER
+    	    WHERE (:search IS NULL OR LOWER(d.fullName) LIKE LOWER(CONCAT('%', :search, '%')))
+    	""")
+    	List<LedgerSummaryDto> fetchDriverLedgerSummary(@Param("search") String search);
+
 }
