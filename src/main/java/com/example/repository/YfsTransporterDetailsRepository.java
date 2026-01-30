@@ -21,25 +21,31 @@ public interface YfsTransporterDetailsRepository
 
     List<YfsTransporterDetails> findByTransportCompanyNameContainingIgnoreCase(String name);
 
-    @Query("""
-        SELECT new com.example.dto.LedgerSummaryDto(
-            t.transporterRegistrationId,
-            t.transportCompanyName,
-            f.gdcRegistrationNumber,
-            w.balance,
-            w.status
-        )
-        FROM YfsTransporterDetails t,
-             TransporterFinalSubmission f,
-             Wallet w
-        WHERE f.transporterRegistrationId = t.transporterRegistrationId
-          AND w.gdcNumber = f.gdcRegistrationNumber
-          AND w.userType = :userType
-          AND (:search IS NULL
-               OR LOWER(t.transportCompanyName) LIKE LOWER(CONCAT('%', :search, '%')))
-    """)
-    List<LedgerSummaryDto> fetchTransporterLedgerSummary(
+ // 👇 PURANE METHODS AS-IS REHENGE
+
+    @Query(
+        value = """
+        SELECT 
+            t.transporter_registration_id AS id,
+            t.transport_company_name      AS name,
+            f.gdc_registration_number     AS code,
+            w.balance                     AS balance,
+            w.status                      AS status
+        FROM yfs_transporter_details t
+        JOIN transporter_final_submission f
+            ON f.transporter_registration_id = t.transporter_registration_id
+        JOIN wallet w
+            ON w.gdc_number = f.gdc_registration_number
+           AND w.user_type = :userType
+        WHERE (:search IS NULL
+               OR LOWER(t.transport_company_name)
+                  LIKE LOWER(CONCAT('%', :search, '%')))
+        """,
+        nativeQuery = true
+    )
+    List<com.example.dto.LedgerSummaryView> fetchTransporterLedgerSummaryNative(
             @Param("search") String search,
-            @Param("userType") PaymentType userType
+            @Param("userType") String userType
     );
+
 }

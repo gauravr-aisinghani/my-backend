@@ -23,27 +23,30 @@ public interface DriverDetailsRepository extends JpaRepository<DriverDetails, Lo
 
     List<DriverDetails> findByFullNameContainingIgnoreCase(String fullName);
 
+ // 👇 PURANE METHODS AS-IS REHENGE
+
     @Query(
         value = """
         SELECT 
-            d.driver_registration_id        AS registrationId,
-            d.full_name                     AS name,
-            f.gdc_registration_number       AS gdcNumber,
-            w.balance                       AS balance,
-            w.status                        AS status
+            d.driver_registration_id  AS id,
+            d.full_name               AS name,
+            f.gdc_registration_number AS code,
+            w.balance                 AS balance,
+            w.status                  AS status
         FROM driver_details d
         JOIN driver_final_submission f
             ON f.driver_registration_id = d.driver_registration_id
         JOIN wallet w
             ON w.gdc_number = f.gdc_registration_number
            AND w.user_type = :userType
-        WHERE (:search IS NULL 
+        WHERE (:search IS NULL
                OR LOWER(d.full_name) LIKE LOWER(CONCAT('%', :search, '%')))
         """,
         nativeQuery = true
     )
-    List<LedgerSummaryDto> fetchDriverLedgerSummary(
+    List<com.example.dto.LedgerSummaryView> fetchDriverLedgerSummaryNative(
             @Param("search") String search,
-            @Param("userType") String userType   // ✅ STRING
+            @Param("userType") String userType
     );
+
 }

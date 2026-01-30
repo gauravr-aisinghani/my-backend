@@ -1,7 +1,7 @@
 package com.example.controller;
 
 import com.example.dto.LedgerRowDto;
-import com.example.dto.LedgerSummaryDto;
+import com.example.dto.LedgerSummaryView;
 import com.example.service.LedgerReadService;
 
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class LedgerController {
         this.ledgerReadService = ledgerReadService;
     }
 
-    // 🔥 TRANSPORTER LEDGER
+    // 🔥 TRANSPORTER LEDGER (DETAIL)
     @GetMapping("/transporter/{gdcNumber}")
     public List<LedgerRowDto> transporterLedger(
             @PathVariable String gdcNumber
@@ -27,7 +27,7 @@ public class LedgerController {
         return ledgerReadService.transporterLedger(gdcNumber);
     }
 
-    // 🔥 DRIVER LEDGER
+    // 🔥 DRIVER LEDGER (DETAIL)
     @GetMapping("/driver/{gdcNumber}/{driverRegistrationId}")
     public List<LedgerRowDto> driverLedger(
             @PathVariable String gdcNumber,
@@ -38,21 +38,20 @@ public class LedgerController {
                 driverRegistrationId
         );
     }
-    
- // 🔍 ALL TRANSPORTERS + SEARCH
+
+    // 🔍 ALL TRANSPORTERS (SEARCHABLE – NATIVE)
     @GetMapping("/transporters")
-    public List<LedgerSummaryDto> allTransporters(
+    public List<LedgerSummaryView> allTransporters(
             @RequestParam(required = false) String search
     ) {
-        return ledgerReadService.allTransporters(search);
+        return ledgerReadService.allTransportersNative(search);
     }
 
-    // 🔍 ALL DRIVERS + SEARCH
+    // 🔍 ALL DRIVERS (SEARCHABLE – NATIVE)
     @GetMapping("/drivers")
-    public List<LedgerSummaryDto> allDrivers(
+    public List<LedgerSummaryView> allDrivers(
             @RequestParam(required = false) String search
     ) {
-        return ledgerReadService.allDrivers(search);
+        return ledgerReadService.allDriversNative(search);
     }
-
 }

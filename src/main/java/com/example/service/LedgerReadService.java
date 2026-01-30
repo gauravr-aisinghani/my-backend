@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dto.LedgerRowDto;
 import com.example.dto.LedgerSummaryDto;
+import com.example.dto.LedgerSummaryView;
 import com.example.entity.*;
 import com.example.repository.*;
 import org.springframework.stereotype.Service;
@@ -101,18 +102,18 @@ public class LedgerReadService {
     }
 
     // ================= ALL TRANSPORTERS (SEARCHABLE) =================
-    public List<LedgerSummaryDto> allTransporters(String search) {
-        return transporterRepo.fetchTransporterLedgerSummary(
+    public List<LedgerSummaryView> allDriversNative(String search) {
+        return driverRepo.fetchDriverLedgerSummaryNative(
                 (search == null || search.isBlank()) ? null : search,
-                PaymentType.TRANSPORTER
+                PaymentType.DRIVER.name()
         );
     }
 
-    // ================= ALL DRIVERS (SEARCHABLE) =================
-    public List<LedgerSummaryDto> allDrivers(String search) {
-        return driverRepo.fetchDriverLedgerSummary(
+    public List<LedgerSummaryView> allTransportersNative(String search) {
+        return transporterRepo.fetchTransporterLedgerSummaryNative(
                 (search == null || search.isBlank()) ? null : search,
-                PaymentType.DRIVER.name() // 🔥 native query → STRING
+                PaymentType.TRANSPORTER.name()
         );
     }
+
 }
