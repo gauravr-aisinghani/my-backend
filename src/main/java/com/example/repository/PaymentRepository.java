@@ -20,4 +20,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     // ✅ ADD THIS METHOD
     Optional<Payment> findByRazorpayOrderId(String razorpayOrderId);
+    
+    
+    boolean existsByRequestIdAndPurposeAndStatus(
+            Long requestId,
+            PaymentPurpose purpose,
+            PaymentStatus status
+    );
+
 }
