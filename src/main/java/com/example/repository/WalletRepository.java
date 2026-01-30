@@ -3,6 +3,8 @@ package com.example.repository;
 import com.example.entity.Wallet;
 import com.example.entity.PaymentType;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
@@ -13,4 +15,7 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
     default Optional<Wallet> findByGdc(String gdc, PaymentType type){
         return findByGdcNumberAndUserType(gdc, type);
     }
+    
+    List<Wallet> findByUserType(PaymentType userType);
+
 }

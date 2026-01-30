@@ -9,4 +9,7 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
 
     // 🔥 wallet wise transactions
     List<WalletTransaction> findByWalletId(Long walletId);
+    
+    List<WalletTransaction> findByWalletIdOrderByCreatedAtAsc(Long walletId);
+
 }

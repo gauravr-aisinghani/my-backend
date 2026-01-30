@@ -92,6 +92,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/notifications/transporter/**").permitAll()
                 .requestMatchers("/api/notifications/driver/**").permitAll()
                 .requestMatchers("/driver-assignments/**").permitAll()
+                .requestMatchers("/api/ledger/**").permitAll()
 
 
 

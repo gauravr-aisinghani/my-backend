@@ -1,0 +1,58 @@
+package com.example.controller;
+
+import com.example.dto.LedgerRowDto;
+import com.example.dto.LedgerSummaryDto;
+import com.example.service.LedgerReadService;
+
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/ledger")
+@CrossOrigin
+public class LedgerController {
+
+    private final LedgerReadService ledgerReadService;
+
+    public LedgerController(LedgerReadService ledgerReadService) {
+        this.ledgerReadService = ledgerReadService;
+    }
+
+    // 🔥 TRANSPORTER LEDGER
+    @GetMapping("/transporter/{gdcNumber}")
+    public List<LedgerRowDto> transporterLedger(
+            @PathVariable String gdcNumber
+    ) {
+        return ledgerReadService.transporterLedger(gdcNumber);
+    }
+
+    // 🔥 DRIVER LEDGER
+    @GetMapping("/driver/{gdcNumber}/{driverRegistrationId}")
+    public List<LedgerRowDto> driverLedger(
+            @PathVariable String gdcNumber,
+            @PathVariable Long driverRegistrationId
+    ) {
+        return ledgerReadService.driverLedger(
+                gdcNumber,
+                driverRegistrationId
+        );
+    }
+    
+ // 🔍 ALL TRANSPORTERS + SEARCH
+    @GetMapping("/transporters")
+    public List<LedgerSummaryDto> allTransporters(
+            @RequestParam(required = false) String search
+    ) {
+        return ledgerReadService.allTransporters(search);
+    }
+
+    // 🔍 ALL DRIVERS + SEARCH
+    @GetMapping("/drivers")
+    public List<LedgerSummaryDto> allDrivers(
+            @RequestParam(required = false) String search
+    ) {
+        return ledgerReadService.allDrivers(search);
+    }
+
+}

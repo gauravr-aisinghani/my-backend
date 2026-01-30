@@ -2,6 +2,8 @@ package com.example.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.entity.DriverDetails;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface DriverDetailsRepository extends JpaRepository<DriverDetails, Long> {
@@ -14,4 +16,8 @@ public interface DriverDetailsRepository extends JpaRepository<DriverDetails, Lo
 
     // 🔥 New: fetch driver details using driver_registration_id
     Optional<DriverDetails> findByDriverRegistrationId(Long driverRegistrationId);
+    
+    List<DriverDetails>
+    findByFullNameContainingIgnoreCase(String fullName);
+
 }
