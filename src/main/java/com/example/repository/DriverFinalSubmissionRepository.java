@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -56,5 +57,25 @@ public interface DriverFinalSubmissionRepository
             LIMIT 1
         """, nativeQuery = true)
         String findDriverMobileByGdc(@Param("gdc") String gdc);
+    
+    
+    @Query("""
+    	    SELECT d
+    	    FROM DriverFinalSubmission d
+    	    WHERE d.completionStatus = 'COMPLETED'
+    	      AND d.termsStatus = 'ACCEPT'
+    	      AND EXISTS (
+    	          SELECT 1 FROM Payment p
+    	          WHERE p.gdcNumber = d.gdcRegistrationNumber
+    	            AND p.status = 'PAID'
+    	            AND p.purpose = 'DRIVER_REGISTRATION'
+    	      )
+    	      AND NOT EXISTS (
+    	          SELECT 1 FROM DriverAssignment a
+    	          WHERE a.assignedDriverRegistrationId = d.driverRegistrationId
+    	      )
+    	""")
+    	List<DriverFinalSubmission> findAvailableDriversForAssignment();
+
 
 }

@@ -2,27 +2,20 @@ package com.example.dto;
 
 public class AssignDriverRequestDto {
 
-    private Long requestId;
-    private Long driverRegistrationId;
-    private Long adminId;
+    private Long request_id;
+    private Long assigned_driver_registration_id;
     private String remarks;
-	public Long getRequestId() {
-		return requestId;
+	public Long getRequest_id() {
+		return request_id;
 	}
-	public void setRequestId(Long requestId) {
-		this.requestId = requestId;
+	public void setRequest_id(Long request_id) {
+		this.request_id = request_id;
 	}
-	public Long getDriverRegistrationId() {
-		return driverRegistrationId;
+	public Long getAssigned_driver_registration_id() {
+		return assigned_driver_registration_id;
 	}
-	public void setDriverRegistrationId(Long driverRegistrationId) {
-		this.driverRegistrationId = driverRegistrationId;
-	}
-	public Long getAdminId() {
-		return adminId;
-	}
-	public void setAdminId(Long adminId) {
-		this.adminId = adminId;
+	public void setAssigned_driver_registration_id(Long assigned_driver_registration_id) {
+		this.assigned_driver_registration_id = assigned_driver_registration_id;
 	}
 	public String getRemarks() {
 		return remarks;
@@ -35,3 +28,4 @@ public class AssignDriverRequestDto {
     
     
 }
+

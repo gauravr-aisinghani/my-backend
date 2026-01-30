@@ -2,13 +2,21 @@ package com.example.dto;
 
 public class AssignDriverResponseDto {
 
+    private Long assignment_id;
     private String message;
-    private Long assignmentId;
 
-    public AssignDriverResponseDto(String message, Long assignmentId) {
+    public AssignDriverResponseDto(Long assignmentId, String message) {
+        this.assignment_id = assignmentId;
         this.message = message;
-        this.assignmentId = assignmentId;
     }
+
+	public Long getAssignment_id() {
+		return assignment_id;
+	}
+
+	public void setAssignment_id(Long assignment_id) {
+		this.assignment_id = assignment_id;
+	}
 
 	public String getMessage() {
 		return message;
@@ -18,15 +26,8 @@ public class AssignDriverResponseDto {
 		this.message = message;
 	}
 
-	public Long getAssignmentId() {
-		return assignmentId;
-	}
-
-	public void setAssignmentId(Long assignmentId) {
-		this.assignmentId = assignmentId;
-	}
-
-    // getters
+    // getters]]]
     
     
 }
+

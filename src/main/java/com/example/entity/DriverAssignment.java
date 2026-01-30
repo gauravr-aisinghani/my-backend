@@ -1,6 +1,7 @@
 package com.example.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,36 +10,42 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "yfs_driver_assignments")
-public class TransporterDriverAssignment {
+public class DriverAssignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "assignment_id")
     private Long assignmentId;
 
-    @Column(name = "request_id")
+    @Column(name = "request_id", nullable = false)
     private Long requestId;
 
-    @Column(name = "assigned_driver_registration_id")
+    @Column(name = "assigned_driver_registration_id", nullable = false)
     private Long assignedDriverRegistrationId;
 
-    @Column(name = "transporter_registration_id")
-    private Long transporterRegistrationId;
+    @Column(
+        name = "transporter_registration_id",
+        columnDefinition = "BINARY(16)",
+        nullable = false
+    )
+    private UUID transporterRegistrationId;
 
     @Column(name = "transporter_phone")
     private String transporterPhone;
 
+    @Column(name = "assigned_by")
+    private Long assignedBy; // admin id
+
     @Column(name = "assignment_status")
-    private String assignmentStatus;
+    private String assignmentStatus; // ASSIGNED / RELEASED
 
     @Column(name = "assigned_at")
-    private LocalDateTime assignedAt;
+    private LocalDateTime assignedAt = LocalDateTime.now();
 
-    @Column(name = "remarks")
+    @Column(name = "released_at")
+    private LocalDateTime releasedAt;
+
     private String remarks;
 
 	public Long getAssignmentId() {
@@ -65,11 +72,11 @@ public class TransporterDriverAssignment {
 		this.assignedDriverRegistrationId = assignedDriverRegistrationId;
 	}
 
-	public Long getTransporterRegistrationId() {
+	public UUID getTransporterRegistrationId() {
 		return transporterRegistrationId;
 	}
 
-	public void setTransporterRegistrationId(Long transporterRegistrationId) {
+	public void setTransporterRegistrationId(UUID transporterRegistrationId) {
 		this.transporterRegistrationId = transporterRegistrationId;
 	}
 
@@ -79,6 +86,14 @@ public class TransporterDriverAssignment {
 
 	public void setTransporterPhone(String transporterPhone) {
 		this.transporterPhone = transporterPhone;
+	}
+
+	public Long getAssignedBy() {
+		return assignedBy;
+	}
+
+	public void setAssignedBy(Long assignedBy) {
+		this.assignedBy = assignedBy;
 	}
 
 	public String getAssignmentStatus() {
@@ -97,6 +112,14 @@ public class TransporterDriverAssignment {
 		this.assignedAt = assignedAt;
 	}
 
+	public LocalDateTime getReleasedAt() {
+		return releasedAt;
+	}
+
+	public void setReleasedAt(LocalDateTime releasedAt) {
+		this.releasedAt = releasedAt;
+	}
+
 	public String getRemarks() {
 		return remarks;
 	}
@@ -105,7 +128,7 @@ public class TransporterDriverAssignment {
 		this.remarks = remarks;
 	}
 
-    // 👉 getters & setters generate kar lena
+    // getters setters
     
     
 }

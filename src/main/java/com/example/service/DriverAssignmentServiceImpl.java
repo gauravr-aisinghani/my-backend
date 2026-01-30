@@ -6,96 +6,83 @@ import com.example.entity.*;
 import com.example.repository.*;
 import com.example.service.DriverAssignmentService;
 import jakarta.transaction.Transactional;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class DriverAssignmentServiceImpl implements DriverAssignmentService {
 
-    private final YfsDriverAssignmentRepository assignmentRepo;
     private final TransporterDriverRequestRepository requestRepo;
-    private final DriverFinalSubmissionRepository driverFinalRepo;
-    private final PaymentRepository paymentRepo;
+    private final DriverAssignmentRepository assignmentRepo;
+    private final DriverFinalSubmissionRepository driverRepo;
 
     public DriverAssignmentServiceImpl(
-            YfsDriverAssignmentRepository assignmentRepo,
             TransporterDriverRequestRepository requestRepo,
-            DriverFinalSubmissionRepository driverFinalRepo,
-            PaymentRepository paymentRepo
+            DriverAssignmentRepository assignmentRepo,
+            DriverFinalSubmissionRepository driverRepo
     ) {
-        this.assignmentRepo = assignmentRepo;
         this.requestRepo = requestRepo;
-        this.driverFinalRepo = driverFinalRepo;
-        this.paymentRepo = paymentRepo;
+        this.assignmentRepo = assignmentRepo;
+        this.driverRepo = driverRepo;
     }
 
     @Override
-    @Transactional
+    public List<TransporterDriverRequest> getAdvancePaidRequests() {
+        return requestRepo.findEligibleRequestsForAssignment();
+    }
+
+    @Override
+    public List<DriverFinalSubmission> getAvailableDrivers() {
+        return driverRepo.findAvailableDriversForAssignment();
+    }
+
+    @Override
     public AssignDriverResponseDto assignDriver(AssignDriverRequestDto dto) {
 
-        // 1️⃣ Request exists
         TransporterDriverRequest request =
-                requestRepo.findById(dto.getRequestId())
+                requestRepo.findById(dto.getRequest_id())
                         .orElseThrow(() ->
-                                new RuntimeException("Driver request not found"));
+                                new RuntimeException("Invalid request id"));
 
-        // 2️⃣ Advance payment check
-        boolean advancePaid =
-                paymentRepo.existsByRequestIdAndPurposeAndStatus(
-                        dto.getRequestId(),
-                        PaymentPurpose.TRANSPORTER_ADVANCE,
-                        PaymentStatus.PAID
-                );
+        if (assignmentRepo.existsByRequestId(dto.getRequest_id())) {
+            throw new RuntimeException("Driver already assigned for this request");
+        }
 
-        if (!advancePaid)
-            throw new RuntimeException("Advance payment not done");
-
-        // 3️⃣ Driver final submission check
-        DriverFinalSubmission driver =
-                driverFinalRepo.findByDriverRegistrationId(
-                        dto.getDriverRegistrationId())
-                        .orElseThrow(() ->
-                                new RuntimeException("Driver not completed verification"));
-
-        if (!"COMPLETED".equalsIgnoreCase(driver.getCompletionStatus()))
-            throw new RuntimeException("Driver profile not completed");
-
-        // 4️⃣ Driver already assigned?
         if (assignmentRepo.existsByAssignedDriverRegistrationId(
-                dto.getDriverRegistrationId()))
+                dto.getAssigned_driver_registration_id())) {
             throw new RuntimeException("Driver already assigned");
+        }
 
-        // 5️⃣ Request already fulfilled?
-        if (assignmentRepo.existsByRequestId(dto.getRequestId()))
-            throw new RuntimeException("Request already fulfilled");
-
-        // 6️⃣ INSERT assignment
-        YfsDriverAssignment assignment = new YfsDriverAssignment();
-        assignment.setRequestId(dto.getRequestId());
-        assignment.setAssignedDriverRegistrationId(dto.getDriverRegistrationId());
+        // 1️⃣ save assignment
+        DriverAssignment assignment = new DriverAssignment();
+        assignment.setRequestId(dto.getRequest_id());
+        assignment.setAssignedDriverRegistrationId(
+                dto.getAssigned_driver_registration_id());
         assignment.setTransporterRegistrationId(
-                request.getTransporterRegistrationId() == null
-                        ? null
-                        : request.getTransporterRegistrationId().getMostSignificantBits()
-        );
+                request.getTransporterRegistrationId());
         assignment.setTransporterPhone(request.getTransporterPhone());
-        assignment.setAssignedBy(dto.getAdminId());
         assignment.setAssignmentStatus("ASSIGNED");
         assignment.setRemarks(dto.getRemarks());
 
         assignmentRepo.save(assignment);
 
-        // 7️⃣ UPDATE request table
-        request.setAssignedDriverId(dto.getDriverRegistrationId());
-        request.setCompletionStatus(
-                TransporterDriverRequest.CompletionStatus.COMPLETED);
+        // 2️⃣ update transporter request
+        request.setAssignedDriverId(
+                dto.getAssigned_driver_registration_id());
         request.setStatus(
                 TransporterDriverRequest.Status.ASSIGNED);
+        request.setCompletionStatus(
+                TransporterDriverRequest.CompletionStatus.COMPLETED);
 
         requestRepo.save(request);
 
         return new AssignDriverResponseDto(
-                "Driver assigned successfully",
-                assignment.getAssignmentId()
+                assignment.getAssignmentId(),
+                "Driver assigned successfully"
         );
     }
 }
+
