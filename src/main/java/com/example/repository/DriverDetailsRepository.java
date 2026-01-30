@@ -20,31 +20,31 @@ public interface DriverDetailsRepository extends JpaRepository<DriverDetails, Lo
 
     boolean existsByAadharNo(String aadharNo);
 
-    // fetch using driver_registration_id
     Optional<DriverDetails> findByDriverRegistrationId(Long driverRegistrationId);
 
     List<DriverDetails> findByFullNameContainingIgnoreCase(String fullName);
 
-    @Query("""
-        SELECT new com.example.dto.LedgerSummaryDto(
-            d.driverRegistrationId,
-            d.fullName,
-            f.gdcRegistrationNumber,
-            w.balance,
-            w.status
-        )
-        FROM DriverDetails d
-        JOIN DriverFinalSubmission f
-            ON f.driverRegistrationId = d.driverRegistrationId
-        JOIN Wallet w
-            ON w.gdcNumber = f.gdcRegistrationNumber
-           AND w.userType = :userType
-        WHERE (:search IS NULL
-               OR LOWER(d.fullName) LIKE LOWER(CONCAT('%', :search, '%')))
-    """)
+    @Query(
+        value = """
+        SELECT 
+            d.driver_registration_id        AS registrationId,
+            d.full_name                     AS name,
+            f.gdc_registration_number       AS gdcNumber,
+            w.balance                       AS balance,
+            w.status                        AS status
+        FROM driver_details d
+        JOIN driver_final_submission f
+            ON f.driver_registration_id = d.driver_registration_id
+        JOIN wallet w
+            ON w.gdc_number = f.gdc_registration_number
+           AND w.user_type = :userType
+        WHERE (:search IS NULL 
+               OR LOWER(d.full_name) LIKE LOWER(CONCAT('%', :search, '%')))
+        """,
+        nativeQuery = true
+    )
     List<LedgerSummaryDto> fetchDriverLedgerSummary(
             @Param("search") String search,
-            @Param("userType") PaymentType userType
+            @Param("userType") String userType
     );
-
 }

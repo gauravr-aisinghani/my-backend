@@ -99,7 +99,7 @@ public class LedgerReadService {
     public List<LedgerSummaryDto> allTransporters(String search) {
         return transporterRepo.fetchTransporterLedgerSummary(
                 (search == null || search.isBlank()) ? null : search,
-                PaymentType.TRANSPORTER
+                PaymentType.TRANSPORTER.name()   // 🔥 FIX
         );
     }
 
@@ -107,7 +107,7 @@ public class LedgerReadService {
     public List<LedgerSummaryDto> allDrivers(String search) {
         return driverRepo.fetchDriverLedgerSummary(
                 (search == null || search.isBlank()) ? null : search,
-                PaymentType.DRIVER
+                PaymentType.DRIVER.name()        // 🔥 FIX
         );
     }
 }
