@@ -3,8 +3,13 @@ package com.example.controller;
 import com.example.dto.AssignDriverRequestDto;
 import com.example.dto.AssignDriverResponseDto;
 import com.example.service.DriverAssignmentService;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.dto.CurrentPostingDto;
 
 @RestController
 @RequestMapping("/driver-assignments")
@@ -38,5 +43,15 @@ public class DriverAssignmentAdminController {
         return ResponseEntity.ok(
                 service.assignDriver(dto));
     }
+    
+    
+ // ✅ 4. current postings
+    @GetMapping("/current-postings")
+    public ResponseEntity<List<CurrentPostingDto>> getCurrentPostings() {
+        return ResponseEntity.ok(
+                service.getCurrentPostings()
+        );
+    }
+
 }
 

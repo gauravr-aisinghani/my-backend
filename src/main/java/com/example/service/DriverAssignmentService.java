@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.dto.AssignDriverRequestDto;
 import com.example.dto.AssignDriverResponseDto;
+import com.example.dto.CurrentPostingDto;
 import com.example.entity.DriverFinalSubmission;
 import com.example.entity.TransporterDriverRequest;
 
@@ -14,4 +15,6 @@ public interface DriverAssignmentService {
     List<DriverFinalSubmission> getAvailableDrivers();
 
     AssignDriverResponseDto assignDriver(AssignDriverRequestDto dto);
+    
+    List<CurrentPostingDto> getCurrentPostings();
 }

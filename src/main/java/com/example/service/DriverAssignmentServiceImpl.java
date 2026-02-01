@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dto.AssignDriverRequestDto;
 import com.example.dto.AssignDriverResponseDto;
+import com.example.dto.CurrentPostingDto;
 import com.example.entity.*;
 import com.example.repository.*;
 import com.example.service.DriverAssignmentService;
@@ -83,6 +84,12 @@ public class DriverAssignmentServiceImpl implements DriverAssignmentService {
                 assignment.getAssignmentId(),
                 "Driver assigned successfully"
         );
+    }
+    
+    
+    @Override
+    public List<CurrentPostingDto> getCurrentPostings() {
+        return assignmentRepo.findCurrentPostings();
     }
 }
 
