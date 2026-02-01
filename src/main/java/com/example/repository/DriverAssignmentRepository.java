@@ -38,12 +38,12 @@ public interface DriverAssignmentRepository
     
     @Query(value = """
     	    SELECT
-    	        d.driver_registration_id AS driverRegistrationId,
-    	        d.full_name              AS driverName,
-    	        d.mobile_number          AS mobileNumber,
-    	        fs.gdc_registration_number AS gdcNumber,
+    	        d.driver_registration_id        AS driverRegistrationId,
+    	        d.full_name                     AS driverName,
+    	        d.mobile_number                 AS mobileNumber,
+    	        fs.gdc_registration_number      AS gdcNumber,
 
-    	        p.created_at             AS paymentDate,
+    	        p.created_at                    AS paymentDate,
 
     	        COALESCE(
     	            MAX(da.released_at),
@@ -62,12 +62,16 @@ public interface DriverAssignmentRepository
 
     	    LEFT JOIN yfs_driver_assignments da
     	        ON da.assigned_driver_registration_id = d.driver_registration_id
+    	       AND da.assignment_status IN ('COMPLETED', 'CANCELLED')
 
     	    WHERE fs.completion_status = 'COMPLETED'
-    	      AND (
-    	            da.assignment_id IS NULL
-    	            OR da.assignment_status <> 'ASSIGNED'
-    	          )
+
+    	      AND NOT EXISTS (
+    	            SELECT 1
+    	            FROM yfs_driver_assignments x
+    	            WHERE x.assigned_driver_registration_id = d.driver_registration_id
+    	              AND x.assignment_status = 'ASSIGNED'
+    	      )
 
     	    GROUP BY
     	        d.driver_registration_id,
@@ -79,5 +83,6 @@ public interface DriverAssignmentRepository
     	    ORDER BY idleSince DESC
     	""", nativeQuery = true)
     	List<IdealDriverDto> findIdealDrivers();
+
 
 }
