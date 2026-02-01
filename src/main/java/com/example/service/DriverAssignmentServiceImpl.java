@@ -1,6 +1,10 @@
 package com.example.service;
 
 import com.example.dto.AssignDriverRequestDto;
+import com.example.dto.CurrentPostingDto;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+
 import com.example.dto.AssignDriverResponseDto;
 import com.example.dto.CurrentPostingDto;
 import com.example.entity.*;
@@ -89,7 +93,30 @@ public class DriverAssignmentServiceImpl implements DriverAssignmentService {
     
     @Override
     public List<CurrentPostingDto> getCurrentPostings() {
-        return assignmentRepo.findCurrentPostings();
+
+        List<Object[]> rows = assignmentRepo.findCurrentPostingsRaw();
+        List<CurrentPostingDto> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            Long assignmentId = ((Number) row[0]).longValue();
+            String driverName = (String) row[1];
+            String transporterName = (String) row[2];
+            String status = (String) row[3];
+            Timestamp ts = (Timestamp) row[4];
+
+            result.add(
+                new CurrentPostingDto(
+                    assignmentId,
+                    driverName,
+                    transporterName,
+                    status,
+                    ts.toLocalDateTime()
+                )
+            );
+        }
+
+        return result;
     }
+
 }
 

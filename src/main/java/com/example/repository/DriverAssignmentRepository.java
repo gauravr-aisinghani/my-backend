@@ -16,22 +16,21 @@ public interface DriverAssignmentRepository
 
     boolean existsByRequestId(Long requestId);
 
-    // ✅ CURRENT POSTINGS
-    @Query("""
-        SELECT new com.example.dto.CurrentPostingDto(
-            da.assignmentId,
-            d.fullName,
-            t.transportCompanyName,
-            da.assignmentStatus,
-            da.assignedAt
-        )
-        FROM DriverAssignment da
-        JOIN YfsDriverDetails d
-            ON d.driverRegistrationId = da.assignedDriverRegistrationId
-        JOIN YfsTransporterDetails t
-            ON t.transporterRegistrationId = da.transporterRegistrationId
-        WHERE da.assignmentStatus = 'ASSIGNED'
-        ORDER BY da.assignedAt DESC
-    """)
-    List<CurrentPostingDto> findCurrentPostings();
+    // ✅ CURRENT POSTINGS (NATIVE QUERY)
+    @Query(value = """
+        SELECT
+            da.assignment_id        AS assignmentId,
+            d.full_name             AS driverName,
+            t.transport_company_name AS transporterName,
+            da.assignment_status    AS assignmentStatus,
+            da.assigned_at          AS assignedAt
+        FROM yfs_driver_assignments da
+        JOIN yfs_driver_details d
+            ON d.driver_registration_id = da.assigned_driver_registration_id
+        JOIN yfs_transporter_details t
+            ON t.transporter_registration_id = da.transporter_registration_id
+        WHERE da.assignment_status = 'ASSIGNED'
+        ORDER BY da.assigned_at DESC
+    """, nativeQuery = true)
+    List<Object[]> findCurrentPostingsRaw();
 }
