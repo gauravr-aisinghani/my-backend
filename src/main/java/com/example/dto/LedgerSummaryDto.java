@@ -4,23 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class LedgerSummaryDto {
 
-    @JsonProperty("id")
-    private Long id;  // Changed from String to Long
-
-    @JsonProperty("name")
+    private String id;   // ✅ String
     private String name;
-
-    @JsonProperty("code")
     private String code;
-
-    @JsonProperty("balance")
     private Double balance;
-
-    @JsonProperty("status")
     private String status;
 
     public LedgerSummaryDto(
-            Long id,   // Changed from String to Long
+            String id,
             String name,
             String code,
             Double balance,
@@ -33,9 +24,45 @@ public class LedgerSummaryDto {
         this.status = status;
     }
 
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getCode() { return code; }
-    public Double getBalance() { return balance; }
-    public String getStatus() { return status; }
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public Double getBalance() {
+		return balance;
+	}
+
+	public void setBalance(Double balance) {
+		this.balance = balance;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+    
+    
 }
