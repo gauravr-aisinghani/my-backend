@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class YfsTransporterDetails {
 
     @Id
-    @Column(name = "transporter_registration_id", length = 36)
+    @Column(name = "transporter_registration_id", length = 255)
     private String transporterRegistrationId;
 
     @Column(name = "transport_company_name", nullable = false, length = 150)
