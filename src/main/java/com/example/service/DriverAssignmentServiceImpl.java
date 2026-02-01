@@ -120,7 +120,23 @@ public class DriverAssignmentServiceImpl implements DriverAssignmentService {
     
     @Override
     public List<IdealDriverDto> getIdealDrivers() {
-        return assignmentRepo.findIdealDrivers();
+
+        List<Object[]> rows = assignmentRepo.findIdealDriversRaw();
+        List<IdealDriverDto> result = new ArrayList<>();
+
+        for (Object[] r : rows) {
+            IdealDriverDto dto = new IdealDriverDto();
+            dto.setDriverRegistrationId(((Number) r[0]).longValue());
+            dto.setDriverName((String) r[1]);
+            dto.setMobileNumber((String) r[2]);
+            dto.setGdcNumber((String) r[3]);
+            dto.setPaymentDate(((Timestamp) r[4]).toLocalDateTime());
+            dto.setIdleSince(((Timestamp) r[5]).toLocalDateTime());
+            result.add(dto);
+        }
+
+        return result;
     }
+
 
 }

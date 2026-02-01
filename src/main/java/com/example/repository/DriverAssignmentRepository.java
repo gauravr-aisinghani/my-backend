@@ -38,50 +38,38 @@ public interface DriverAssignmentRepository
     
     @Query(value = """
     	    SELECT
-    	        d.driver_registration_id        AS driverRegistrationId,
-    	        d.full_name                     AS driverName,
-    	        d.mobile_number                 AS mobileNumber,
-    	        fs.gdc_registration_number      AS gdcNumber,
-
-    	        MAX(p.created_at)               AS paymentDate,
-
-    	        COALESCE(
-    	            MAX(da.released_at),
-    	            MAX(p.created_at)
-    	        ) AS idleSince
-
+    	        d.driver_registration_id,
+    	        d.full_name,
+    	        d.mobile_number,
+    	        fs.gdc_registration_number,
+    	        MAX(p.created_at) AS paymentDate,
+    	        COALESCE(MAX(da.released_at), MAX(p.created_at)) AS idleSince
     	    FROM yfs_driver_final_submission fs
-
     	    JOIN yfs_driver_details d
     	        ON d.driver_registration_id = fs.driver_registration_id
-
     	    JOIN yfs_payments p
     	        ON p.gdc_number = fs.gdc_registration_number
     	       AND p.status = 'PAID'
     	       AND p.purpose = 'DRIVER_REGISTRATION'
-
     	    LEFT JOIN yfs_driver_assignments da
     	        ON da.assigned_driver_registration_id = d.driver_registration_id
     	       AND da.assignment_status IN ('COMPLETED', 'CANCELLED')
-
     	    WHERE fs.completion_status = 'COMPLETED'
-
     	      AND NOT EXISTS (
     	            SELECT 1
     	            FROM yfs_driver_assignments x
     	            WHERE x.assigned_driver_registration_id = d.driver_registration_id
     	              AND x.assignment_status = 'ASSIGNED'
     	      )
-
     	    GROUP BY
     	        d.driver_registration_id,
     	        d.full_name,
     	        d.mobile_number,
     	        fs.gdc_registration_number
-
     	    ORDER BY idleSince DESC
     	""", nativeQuery = true)
-    	List<IdealDriverDto> findIdealDrivers();
+    	List<Object[]> findIdealDriversRaw();
+
 
 
 
