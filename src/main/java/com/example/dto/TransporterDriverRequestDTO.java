@@ -1,13 +1,11 @@
 package com.example.dto;
 
-import java.util.UUID;
-
 /**
  * DTO for Transporter Driver Request creation
  */
 public class TransporterDriverRequestDTO {
 
-    private UUID transporterRegistrationId;
+    private String transporterRegistrationId; // Changed from UUID to String
     private String transporterPhone;
     private String gdcNumber;
     private String vehicleNumber;
@@ -17,18 +15,18 @@ public class TransporterDriverRequestDTO {
     private String vehicleGrade;
 
     public String getVehicleGrade() {
-		return vehicleGrade;
-	}
+        return vehicleGrade;
+    }
 
-	public void setVehicleGrade(String vehicleGrade) {
-		this.vehicleGrade = vehicleGrade;
-	}
+    public void setVehicleGrade(String vehicleGrade) {
+        this.vehicleGrade = vehicleGrade;
+    }
 
-	public UUID getTransporterRegistrationId() {
+    public String getTransporterRegistrationId() {
         return transporterRegistrationId;
     }
 
-    public void setTransporterRegistrationId(UUID transporterRegistrationId) {
+    public void setTransporterRegistrationId(String transporterRegistrationId) {
         this.transporterRegistrationId = transporterRegistrationId;
     }
 

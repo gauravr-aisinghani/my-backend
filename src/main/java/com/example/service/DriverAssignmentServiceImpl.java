@@ -2,16 +2,13 @@ package com.example.service;
 
 import com.example.dto.AssignDriverRequestDto;
 import com.example.dto.CurrentPostingDto;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-
 import com.example.dto.AssignDriverResponseDto;
-import com.example.dto.CurrentPostingDto;
 import com.example.entity.*;
 import com.example.repository.*;
-import com.example.service.DriverAssignmentService;
 import jakarta.transaction.Transactional;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -67,7 +64,8 @@ public class DriverAssignmentServiceImpl implements DriverAssignmentService {
         assignment.setAssignedDriverRegistrationId(
                 dto.getAssigned_driver_registration_id());
         assignment.setTransporterRegistrationId(
-                request.getTransporterRegistrationId());
+                request.getTransporterRegistrationId() // now String
+        );
         assignment.setTransporterPhone(request.getTransporterPhone());
         assignment.setAssignmentStatus("ASSIGNED");
         assignment.setRemarks(dto.getRemarks());
@@ -89,8 +87,8 @@ public class DriverAssignmentServiceImpl implements DriverAssignmentService {
                 "Driver assigned successfully"
         );
     }
-    
-    
+
+
     @Override
     public List<CurrentPostingDto> getCurrentPostings() {
 
@@ -119,4 +117,3 @@ public class DriverAssignmentServiceImpl implements DriverAssignmentService {
     }
 
 }
-

@@ -7,36 +7,36 @@ import java.time.LocalDateTime;
 @Table(name = "yfs_driver_assignments")
 public class YfsDriverAssignment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "assignment_id")
-    private Long assignmentId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "assignment_id")
+	private Long assignmentId;
 
-    @Column(name = "request_id", nullable = false)
-    private Long requestId;
+	@Column(name = "request_id", nullable = false)
+	private Long requestId;
 
-    @Column(name = "assigned_driver_registration_id", nullable = false)
-    private Long assignedDriverRegistrationId;
+	@Column(name = "assigned_driver_registration_id", nullable = false)
+	private Long assignedDriverRegistrationId;
 
-    @Column(name = "transporter_registration_id", nullable = false)
-    private Long transporterRegistrationId;
+	@Column(name = "transporter_registration_id", nullable = false)
+	private String transporterRegistrationId;
 
-    @Column(name = "transporter_phone")
-    private String transporterPhone;
+	@Column(name = "transporter_phone")
+	private String transporterPhone;
 
-    @Column(name = "assigned_by")
-    private Long assignedBy; // admin id
+	@Column(name = "assigned_by")
+	private Long assignedBy; // admin id
 
-    @Column(name = "assignment_status")
-    private String assignmentStatus; // ASSIGNED / RELEASED
+	@Column(name = "assignment_status")
+	private String assignmentStatus; // ASSIGNED / RELEASED
 
-    @Column(name = "assigned_at", insertable = false, updatable = false)
-    private LocalDateTime assignedAt;
+	@Column(name = "assigned_at", insertable = false, updatable = false)
+	private LocalDateTime assignedAt;
 
-    @Column(name = "released_at")
-    private LocalDateTime releasedAt;
+	@Column(name = "released_at")
+	private LocalDateTime releasedAt;
 
-    private String remarks;
+	private String remarks;
 
 	public Long getAssignmentId() {
 		return assignmentId;
@@ -62,11 +62,11 @@ public class YfsDriverAssignment {
 		this.assignedDriverRegistrationId = assignedDriverRegistrationId;
 	}
 
-	public Long getTransporterRegistrationId() {
+	public String getTransporterRegistrationId() {
 		return transporterRegistrationId;
 	}
 
-	public void setTransporterRegistrationId(Long transporterRegistrationId) {
+	public void setTransporterRegistrationId(String transporterRegistrationId) {
 		this.transporterRegistrationId = transporterRegistrationId;
 	}
 
@@ -118,7 +118,6 @@ public class YfsDriverAssignment {
 		this.remarks = remarks;
 	}
 
-    // getters setters
-    
-    
+	// getters setters
+
 }
