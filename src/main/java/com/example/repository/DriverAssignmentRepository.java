@@ -43,11 +43,11 @@ public interface DriverAssignmentRepository
     	        d.mobile_number                 AS mobileNumber,
     	        fs.gdc_registration_number      AS gdcNumber,
 
-    	        p.created_at                    AS paymentDate,
+    	        MAX(p.created_at)               AS paymentDate,
 
     	        COALESCE(
     	            MAX(da.released_at),
-    	            p.created_at
+    	            MAX(p.created_at)
     	        ) AS idleSince
 
     	    FROM yfs_driver_final_submission fs
@@ -77,12 +77,12 @@ public interface DriverAssignmentRepository
     	        d.driver_registration_id,
     	        d.full_name,
     	        d.mobile_number,
-    	        fs.gdc_registration_number,
-    	        p.created_at
+    	        fs.gdc_registration_number
 
     	    ORDER BY idleSince DESC
     	""", nativeQuery = true)
     	List<IdealDriverDto> findIdealDrivers();
+
 
 
 }
