@@ -55,7 +55,7 @@ public interface DriverAssignmentRepository
     	    JOIN yfs_driver_details d
     	        ON d.driver_registration_id = fs.driver_registration_id
 
-    	    JOIN yfs_payment p
+    	    JOIN yfs_payments p
     	        ON p.gdc_number = fs.gdc_registration_number
     	       AND p.status = 'PAID'
     	       AND p.purpose = 'DRIVER_REGISTRATION'
