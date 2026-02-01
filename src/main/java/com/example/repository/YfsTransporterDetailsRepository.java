@@ -34,7 +34,7 @@ public interface YfsTransporterDetailsRepository
         FROM yfs_transporter_details t
         JOIN yfs_transporter_final_submission f
             ON f.transporter_registration_id = t.transporter_registration_id
-        JOIN wallet w
+        JOIN yfs_wallet w
             ON w.gdc_number = f.gdc_registration_number
            AND w.user_type = :userType
         WHERE (:search IS NULL
