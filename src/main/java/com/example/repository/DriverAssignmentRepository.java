@@ -1,6 +1,7 @@
 package com.example.repository;
 
 import com.example.dto.CurrentPostingDto;
+import com.example.dto.IdealDriverDto;
 import com.example.entity.DriverAssignment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -33,4 +34,50 @@ public interface DriverAssignmentRepository
         ORDER BY da.assigned_at DESC
     """, nativeQuery = true)
     List<Object[]> findCurrentPostingsRaw();
+    
+    
+    @Query(value = """
+    	    SELECT
+    	        d.driver_registration_id AS driverRegistrationId,
+    	        d.full_name              AS driverName,
+    	        d.mobile_number          AS mobileNumber,
+    	        fs.gdc_registration_number AS gdcNumber,
+
+    	        p.created_at             AS paymentDate,
+
+    	        COALESCE(
+    	            MAX(da.released_at),
+    	            p.created_at
+    	        ) AS idleSince
+
+    	    FROM yfs_driver_final_submission fs
+
+    	    JOIN yfs_driver_details d
+    	        ON d.driver_registration_id = fs.driver_registration_id
+
+    	    JOIN yfs_payment p
+    	        ON p.gdc_number = fs.gdc_registration_number
+    	       AND p.status = 'PAID'
+    	       AND p.purpose = 'DRIVER_REGISTRATION'
+
+    	    LEFT JOIN yfs_driver_assignments da
+    	        ON da.assigned_driver_registration_id = d.driver_registration_id
+
+    	    WHERE fs.completion_status = 'COMPLETED'
+    	      AND (
+    	            da.assignment_id IS NULL
+    	            OR da.assignment_status <> 'ASSIGNED'
+    	          )
+
+    	    GROUP BY
+    	        d.driver_registration_id,
+    	        d.full_name,
+    	        d.mobile_number,
+    	        fs.gdc_registration_number,
+    	        p.created_at
+
+    	    ORDER BY idleSince DESC
+    	""", nativeQuery = true)
+    	List<IdealDriverDto> findIdealDrivers();
+
 }

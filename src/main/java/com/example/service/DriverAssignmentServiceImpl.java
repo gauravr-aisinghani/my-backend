@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dto.AssignDriverRequestDto;
 import com.example.dto.CurrentPostingDto;
+import com.example.dto.IdealDriverDto;
 import com.example.dto.AssignDriverResponseDto;
 import com.example.entity.*;
 import com.example.repository.*;
@@ -114,6 +115,12 @@ public class DriverAssignmentServiceImpl implements DriverAssignmentService {
         }
 
         return result;
+    }
+    
+    
+    @Override
+    public List<IdealDriverDto> getIdealDrivers() {
+        return assignmentRepo.findIdealDrivers();
     }
 
 }
